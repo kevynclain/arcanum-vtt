@@ -4,11 +4,17 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 export default function NewCharacter() {
+
   const router = useRouter();
 
   const [name, setName] = useState("");
+  const [origin, setOrigin] = useState("");
+  const [className, setClassName] = useState("");
+  const [nex, setNex] = useState("");
+
 
   function createCharacter() {
+
     if (!name.trim()) {
       alert("Digite o nome do personagem");
       return;
@@ -16,6 +22,7 @@ export default function NewCharacter() {
 
     router.push(`/character/${name}`);
   }
+
 
   return (
     <main className="min-h-screen bg-[#08080a] text-white flex items-center justify-center">
@@ -64,7 +71,17 @@ export default function NewCharacter() {
               </label>
 
               <input
-                className="w-full mt-2 bg-zinc-800 border border-zinc-700 rounded-lg p-3"
+                value={origin}
+                onChange={(e) => setOrigin(e.target.value)}
+                className="
+                w-full
+                mt-2
+                bg-zinc-800
+                border
+                border-zinc-700
+                rounded-lg
+                p-3
+                "
                 placeholder="Ex: Investigador"
               />
             </div>
@@ -76,7 +93,17 @@ export default function NewCharacter() {
               </label>
 
               <input
-                className="w-full mt-2 bg-zinc-800 border border-zinc-700 rounded-lg p-3"
+                value={className}
+                onChange={(e) => setClassName(e.target.value)}
+                className="
+                w-full
+                mt-2
+                bg-zinc-800
+                border
+                border-zinc-700
+                rounded-lg
+                p-3
+                "
                 placeholder="Ex: Especialista"
               />
             </div>
@@ -90,7 +117,17 @@ export default function NewCharacter() {
             </label>
 
             <input
-              className="w-full mt-2 bg-zinc-800 border border-zinc-700 rounded-lg p-3"
+              value={nex}
+              onChange={(e) => setNex(e.target.value)}
+              className="
+              w-full
+              mt-2
+              bg-zinc-800
+              border
+              border-zinc-700
+              rounded-lg
+              p-3
+              "
               placeholder="Ex: 10%"
             />
           </div>
@@ -104,7 +141,9 @@ export default function NewCharacter() {
           <div className="grid grid-cols-5 gap-3">
 
             {["FOR", "AGI", "INT", "PRE", "VIG"].map((atributo) => (
+
               <div key={atributo}>
+
                 <label className="text-sm text-zinc-400">
                   {atributo}
                 </label>
@@ -122,7 +161,9 @@ export default function NewCharacter() {
                   "
                   defaultValue="1"
                 />
+
               </div>
+
             ))}
 
           </div>
