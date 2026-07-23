@@ -1,4 +1,22 @@
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+
 export default function NewCharacter() {
+  const router = useRouter();
+
+  const [name, setName] = useState("");
+
+  function createCharacter() {
+    if (!name.trim()) {
+      alert("Digite o nome do personagem");
+      return;
+    }
+
+    router.push(`/character/${name}`);
+  }
+
   return (
     <main className="min-h-screen bg-[#08080a] text-white flex items-center justify-center">
 
@@ -22,6 +40,8 @@ export default function NewCharacter() {
             </label>
 
             <input
+              value={name}
+              onChange={(e) => setName(e.target.value)}
               className="
               w-full
               mt-2
@@ -109,6 +129,7 @@ export default function NewCharacter() {
 
 
           <button
+            onClick={createCharacter}
             className="
             w-full
             bg-red-700
