@@ -4,13 +4,14 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { origins } from "@/app/data/origins";
 import { classes } from "@/app/data/classes";
-import { statusClasses } from "@/app/data/status";
+import { calcularStatus } from "@/app/data/system";
 
 export default function NewCharacter() {
 
   const router = useRouter();
 
   const [name, setName] = useState("");
+  const [image, setImage] = useState("");
   const [origin, setOrigin] = useState("");
   const [className, setClassName] = useState("");
   const [nex, setNex] = useState("5%");
@@ -33,16 +34,13 @@ export default function NewCharacter() {
 
     let numero = Number(valor);
 
-
     if (numero < 0) {
       numero = 0;
     }
 
-
     if (numero > 5) {
       numero = 5;
     }
-
 
     setAttributes({
       ...attributes,
@@ -57,7 +55,6 @@ export default function NewCharacter() {
 
   function createCharacter() {
 
-
     if (!name.trim()) {
 
       alert("Digite o nome do personagem");
@@ -67,13 +64,9 @@ export default function NewCharacter() {
     }
 
 
-
-
     const origemSelecionada = origins.find(
       (item) => item.name === origin
     );
-
-
 
 
     const classeSelecionada = classes.find(
@@ -81,56 +74,21 @@ export default function NewCharacter() {
     );
 
 
+    if (!className) {
+
+      alert("Selecione uma classe.");
+
+      return;
+
+    }
 
 
 
-    const statusBase =
-      statusClasses[
-        className as keyof typeof statusClasses
-      ];
-
-
-
-
-
-    const valorNex = Number(
-      nex.replace("%", "")
+    const { pv, pe, san } = calcularStatus(
+      className,
+      attributes,
+      nex
     );
-
-
-
-
-    const nivelNex = valorNex / 5;
-
-
-
-
-
-    const pv = statusBase
-      ? statusBase.pvBase +
-        (attributes.VIG * 2) +
-        (nivelNex * 4)
-      : 0;
-
-
-
-    const pe = statusBase
-      ? statusBase.peBase +
-        attributes.PRE +
-        nivelNex
-      : 0;
-
-
-
-
-    const san = statusBase
-      ? statusBase.sanBase +
-        (nivelNex * 2)
-      : 0;
-
-
-
-
 
 
 
@@ -138,6 +96,9 @@ export default function NewCharacter() {
 
 
       nome: name,
+
+
+      imagem: image,
 
 
       origem: origin || "Não definido",
@@ -152,20 +113,24 @@ export default function NewCharacter() {
 
       pv,
 
-
       pe,
-
 
       san,
 
 
 
-      pericias:
-      [
+      pvAtual: pv,
+
+      peAtual: pe,
+
+      sanAtual: san,
+
+
+
+      pericias: [
         ...(origemSelecionada?.skills || []),
         ...(classeSelecionada?.skills || [])
       ],
-
 
 
 
@@ -174,18 +139,13 @@ export default function NewCharacter() {
 
 
 
-
-
       habilidadeClasse:
         classeSelecionada?.ability || "Nenhuma",
 
 
 
-
       descricaoClasse:
         classeSelecionada?.description || "",
-
-
 
 
 
@@ -197,15 +157,20 @@ export default function NewCharacter() {
 
 
 
+    const personagensSalvos = JSON.parse(
+      localStorage.getItem("personagens") || "[]"
+    );
+
+
+
+    personagensSalvos.push(personagem);
 
 
 
     localStorage.setItem(
-      "personagem",
-      JSON.stringify(personagem)
+      "personagens",
+      JSON.stringify(personagensSalvos)
     );
-
-
 
 
 
@@ -219,15 +184,12 @@ export default function NewCharacter() {
 
 
 
-
-
   return (
 
     <main className="min-h-screen bg-[#08080a] text-white flex items-center justify-center">
 
 
       <div className="w-full max-w-2xl">
-
 
 
         <h1 className="text-4xl font-black text-red-600 tracking-widest text-center">
@@ -244,10 +206,7 @@ export default function NewCharacter() {
 
 
 
-
         <div className="mt-10 bg-zinc-900 border border-zinc-700 rounded-lg p-6 space-y-5">
-
-
 
 
 
@@ -278,9 +237,41 @@ export default function NewCharacter() {
 
             />
 
-
           </div>
 
+
+
+
+
+          <div>
+
+            <label className="text-zinc-400">
+              Imagem do personagem (URL)
+            </label>
+
+
+            <input
+
+              value={image}
+
+              onChange={(e)=>setImage(e.target.value)}
+
+              className="
+              w-full
+              mt-2
+              bg-zinc-800
+              border
+              border-zinc-700
+              rounded-lg
+              p-3
+              "
+
+              placeholder="Cole o link da imagem aqui"
+
+            />
+
+
+          </div>
 
 
 
@@ -290,13 +281,11 @@ export default function NewCharacter() {
           <div className="grid grid-cols-2 gap-4">
 
 
-
             <div>
 
               <label className="text-zinc-400">
                 Origem
               </label>
-
 
 
               <select
@@ -328,7 +317,9 @@ export default function NewCharacter() {
                     key={item.name}
                     value={item.name}
                   >
+
                     {item.name}
+
                   </option>
 
                 ))}
@@ -343,14 +334,11 @@ export default function NewCharacter() {
 
 
 
-
             <div>
-
 
               <label className="text-zinc-400">
                 Classe
               </label>
-
 
 
               <select
@@ -371,11 +359,9 @@ export default function NewCharacter() {
 
               >
 
-
                 <option value="">
                   Escolha uma classe
                 </option>
-
 
 
                 {classes.map((item)=>(
@@ -384,12 +370,12 @@ export default function NewCharacter() {
                     key={item.name}
                     value={item.name}
                   >
+
                     {item.name}
+
                   </option>
 
-
                 ))}
-
 
 
               </select>
@@ -404,15 +390,11 @@ export default function NewCharacter() {
 
 
 
-
-
           <div>
-
 
             <label className="text-zinc-400">
               NEX
             </label>
-
 
 
             <select
@@ -433,18 +415,28 @@ export default function NewCharacter() {
 
             >
 
+
               {Array.from(
                 {length:19},
-                (_,i)=>(
+                (_,i)=>{
 
-                  <option
-                    key={(i+1)*5}
-                    value={`${(i+1)*5}%`}
-                  >
-                    {(i+1)*5}%
-                  </option>
+                  const valor=(i+1)*5;
 
-                )
+                  return (
+
+                    <option
+                      key={valor}
+                      value={`${valor}%`}
+                    >
+
+                      {valor}%
+
+                    </option>
+
+                  );
+
+                }
+
               )}
 
 
@@ -462,19 +454,9 @@ export default function NewCharacter() {
 
 
 
-
-
-
           <h2 className="text-xl font-bold text-red-500 pt-4">
             Atributos
           </h2>
-
-
-          <p className="text-zinc-500 text-sm">
-            Valor permitido: 0 até 5
-          </p>
-
-
 
 
 
@@ -485,86 +467,45 @@ export default function NewCharacter() {
             {Object.keys(attributes).map((atributo)=>(
 
 
-              <div key={atributo}>
+              <input
+
+                key={atributo}
+
+                type="number"
+
+                min="0"
+
+                max="5"
+
+                value={
+                  attributes[
+                    atributo as keyof typeof attributes
+                  ]
+                }
 
 
-                <label className="text-sm text-zinc-400">
-                  {atributo}
-                </label>
+                onChange={(e)=>
+                  changeAttribute(
+                    atributo,
+                    e.target.value
+                  )
+                }
 
 
+                className="
+                bg-zinc-800
+                rounded-lg
+                p-2
+                text-center
+                "
 
-                <input
-
-                  type="number"
-
-                  min="0"
-
-                  max="5"
-
-                  value={
-                    attributes[
-                      atributo as keyof typeof attributes
-                    ]
-                  }
-
-
-                  onChange={(e)=>{
-
-                    const valor = Number(e.target.value);
-
-
-                    if(valor >=0 && valor <=5){
-
-                      changeAttribute(
-                        atributo,
-                        e.target.value
-                      );
-
-                    }
-
-                  }}
-
-
-                  onKeyDown={(e)=>{
-
-                    if(
-                      e.key==="-" ||
-                      e.key==="+" ||
-                      e.key==="e"
-                    ){
-
-                      e.preventDefault();
-
-                    }
-
-                  }}
-
-
-                  className="
-                  w-full
-                  mt-2
-                  bg-zinc-800
-                  border
-                  border-zinc-700
-                  rounded-lg
-                  p-2
-                  text-center
-                  "
-
-                />
-
-
-              </div>
+              />
 
 
             ))}
 
 
           </div>
-
-
-
 
 
 
@@ -578,11 +519,9 @@ export default function NewCharacter() {
             w-full
             bg-red-700
             hover:bg-red-600
-            transition
             rounded-lg
             py-3
             font-bold
-            mt-5
             "
 
           >
@@ -590,8 +529,6 @@ export default function NewCharacter() {
             Criar Personagem
 
           </button>
-
-
 
 
 

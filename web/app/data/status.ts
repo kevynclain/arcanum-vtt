@@ -1,30 +1,53 @@
 export const statusClasses = {
 
   Combatente: {
+
     pvBase: 20,
-    pvPorNex: 4,
+    pvNivel: 4,
+    pvPorVigor: 2,
+
     peBase: 2,
-    pePorNex: 2,
+    peNivel: 2,
+    pePorPresenca: 0,
+
     sanBase: 12,
-    sanPorNex: 1,
+    sanNivel: 3,
+    sanPorPresenca: 0,
+
   },
+
 
   Especialista: {
+
     pvBase: 16,
-    pvPorNex: 3,
+    pvNivel: 3,
+    pvPorVigor: 2,
+
     peBase: 3,
-    pePorNex: 3,
+    peNivel: 3,
+    pePorPresenca: 0,
+
     sanBase: 16,
-    sanPorNex: 2,
+    sanNivel: 4,
+    sanPorPresenca: 0,
+
   },
 
+
   Ocultista: {
+
     pvBase: 12,
-    pvPorNex: 2,
+    pvNivel: 2,
+    pvPorVigor: 2,
+
     peBase: 4,
-    pePorNex: 4,
+    peNivel: 4,
+    pePorPresenca: 0,
+
     sanBase: 20,
-    sanPorNex: 3,
+    sanNivel: 5,
+    sanPorPresenca: 0,
+
   },
 
 };
