@@ -2,30 +2,49 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+
 import { origins } from "@/app/data/origins";
 import { classes } from "@/app/data/classes";
+import { trilhas } from "@/app/data/trilhas";
 import { calcularStatus } from "@/app/data/system";
 
+
 export default function NewCharacter() {
+
 
   const router = useRouter();
 
 
-  const [name, setName] = useState("");
-  const [player, setPlayer] = useState("");
-  const [age, setAge] = useState("");
-  const [appearance, setAppearance] = useState("");
-  const [history, setHistory] = useState("");
-  const [notes, setNotes] = useState("");
 
-  const [image, setImage] = useState("");
-  const [origin, setOrigin] = useState("");
-  const [className, setClassName] = useState("");
-  const [nex, setNex] = useState("5%");
+  const [name,setName] = useState("");
+
+  const [player,setPlayer] = useState("");
+
+  const [age,setAge] = useState("");
+
+  const [appearance,setAppearance] = useState("");
+
+  const [history,setHistory] = useState("");
+
+  const [notes,setNotes] = useState("");
 
 
 
-  const [attributes, setAttributes] = useState({
+  const [image,setImage] = useState("");
+
+
+
+  const [origin,setOrigin] = useState("");
+
+  const [className,setClassName] = useState("");
+
+  const [trilha,setTrilha] = useState("");
+
+  const [nex,setNex] = useState("5%");
+
+
+
+  const [attributes,setAttributes] = useState({
 
     FOR:1,
     AGI:1,
@@ -38,22 +57,26 @@ export default function NewCharacter() {
 
 
 
-
   function changeAttribute(
     atributo:string,
     valor:string
   ){
 
+
     let numero = Number(valor);
 
 
     if(numero < 0){
+
       numero = 0;
+
     }
 
 
     if(numero > 5){
+
       numero = 5;
+
     }
 
 
@@ -61,9 +84,10 @@ export default function NewCharacter() {
 
       ...attributes,
 
-      [atributo]:numero,
+      [atributo]:numero
 
     });
+
 
   }
 
@@ -76,18 +100,23 @@ export default function NewCharacter() {
     e:React.ChangeEvent<HTMLInputElement>
   ){
 
+
     const arquivo = e.target.files?.[0];
 
 
     if(!arquivo){
+
       return;
+
     }
+
 
 
     const leitor = new FileReader();
 
 
-    leitor.onload = () => {
+
+    leitor.onload = ()=>{
 
       setImage(
         String(leitor.result)
@@ -96,11 +125,11 @@ export default function NewCharacter() {
     };
 
 
+
     leitor.readAsDataURL(arquivo);
 
+
   }
-
-
 
 
 
@@ -123,8 +152,6 @@ export default function NewCharacter() {
 
 
 
-
-
     if(!className){
 
       alert("Selecione uma classe.");
@@ -136,12 +163,9 @@ export default function NewCharacter() {
 
 
 
-
-
     const origemSelecionada = origins.find(
 
-      (item)=>
-        item.name === origin
+      item => item.name === origin
 
     );
 
@@ -149,12 +173,19 @@ export default function NewCharacter() {
 
     const classeSelecionada = classes.find(
 
-      (item)=>
-        item.name === className
+      item => item.name === className
 
     );
 
 
+
+    const trilhaSelecionada = trilhas.find(
+
+      item => 
+        item.nome === trilha &&
+        item.classe === className
+
+    );
 
 
 
@@ -179,11 +210,10 @@ export default function NewCharacter() {
 
 
 
-
-
     const personagem = {
 
-      id: crypto.randomUUID(),
+
+      id:crypto.randomUUID(),
 
 
       nome:nomeFinal,
@@ -204,7 +234,6 @@ export default function NewCharacter() {
       anotacoes:notes,
 
 
-
       imagem:image,
 
 
@@ -219,7 +248,13 @@ export default function NewCharacter() {
 
 
 
+      trilha:
+        trilha || "Sem trilha",
+
+
+
       nex,
+
 
 
       pv,
@@ -229,12 +264,24 @@ export default function NewCharacter() {
       san,
 
 
+
       pvAtual:pv,
 
       peAtual:pe,
 
       sanAtual:san,
-	        pericias:[
+
+
+
+      poderesDesbloqueados:[],
+
+
+      poderesTrilha:
+        trilhaSelecionada?.poderes || [],
+
+
+
+      pericias:[
 
         ...(origemSelecionada?.skills || []),
 
@@ -244,12 +291,9 @@ export default function NewCharacter() {
 
 
 
-
-      poder:
+      poderOrigem:
 
         origemSelecionada?.power || "Nenhum",
-
-
 
 
 
@@ -259,30 +303,17 @@ export default function NewCharacter() {
 
 
 
-
-
-
       descricaoClasse:
 
         classeSelecionada?.description || "",
 
 
 
-
-
-
       atributos:attributes,
 
 
-
     };
-
-
-
-
-
-
-    const personagensSalvos = JSON.parse(
+	    const personagensSalvos = JSON.parse(
 
       localStorage.getItem("personagens") || "[]"
 
@@ -290,11 +321,7 @@ export default function NewCharacter() {
 
 
 
-
-
     personagensSalvos.push(personagem);
-
-
 
 
 
@@ -305,9 +332,6 @@ export default function NewCharacter() {
       JSON.stringify(personagensSalvos)
 
     );
-
-
-
 
 
 
@@ -325,8 +349,22 @@ export default function NewCharacter() {
 
 
 
+  const trilhasDisponiveis = trilhas.filter(
+
+    item =>
+
+      item.classe === className
+
+  );
+
+
+
+
+
+
 
   return (
+
 
     <main className="
     min-h-screen
@@ -339,6 +377,8 @@ export default function NewCharacter() {
 
 
       <div className="w-full max-w-2xl">
+
+
 
 
 
@@ -391,7 +431,9 @@ export default function NewCharacter() {
           <div>
 
             <label className="text-zinc-400">
+
               Nome do personagem
+
             </label>
 
 
@@ -418,8 +460,8 @@ export default function NewCharacter() {
 
             />
 
-          </div>
 
+          </div>
 
 
 
@@ -430,7 +472,9 @@ export default function NewCharacter() {
           <div>
 
             <label className="text-zinc-400">
+
               Jogador
+
             </label>
 
 
@@ -457,8 +501,8 @@ export default function NewCharacter() {
 
             />
 
-          </div>
 
+          </div>
 
 
 
@@ -469,7 +513,9 @@ export default function NewCharacter() {
           <div>
 
             <label className="text-zinc-400">
+
               Idade
+
             </label>
 
 
@@ -496,8 +542,8 @@ export default function NewCharacter() {
 
             />
 
-          </div>
 
+          </div>
 
 
 
@@ -508,7 +554,9 @@ export default function NewCharacter() {
           <div>
 
             <label className="text-zinc-400">
+
               Aparência
+
             </label>
 
 
@@ -532,12 +580,12 @@ export default function NewCharacter() {
               min-h-24
               "
 
-              placeholder="Descreva a aparência do personagem"
+              placeholder="Descreva a aparência"
 
             />
 
-          </div>
 
+          </div>
 
 
 
@@ -548,7 +596,9 @@ export default function NewCharacter() {
           <div>
 
             <label className="text-zinc-400">
+
               História
+
             </label>
 
 
@@ -576,8 +626,8 @@ export default function NewCharacter() {
 
             />
 
-          </div>
 
+          </div>
 
 
 
@@ -588,7 +638,9 @@ export default function NewCharacter() {
           <div>
 
             <label className="text-zinc-400">
+
               Anotações
+
             </label>
 
 
@@ -616,6 +668,7 @@ export default function NewCharacter() {
 
             />
 
+
           </div>
 		            <div>
 
@@ -626,20 +679,13 @@ export default function NewCharacter() {
             </label>
 
 
-
-
             <input
-
 
               type="file"
 
-
               accept="image/*"
 
-
-
               onChange={handleImage}
-
 
 
               className="
@@ -652,7 +698,6 @@ export default function NewCharacter() {
               p-3
               "
 
-
             />
 
 
@@ -661,7 +706,6 @@ export default function NewCharacter() {
 
             {
               image && (
-
 
                 <div className="
                 flex
@@ -672,12 +716,9 @@ export default function NewCharacter() {
 
                   <img
 
-
                     src={image}
 
-
                     alt="Preview"
-
 
                     className="
                     w-40
@@ -688,20 +729,17 @@ export default function NewCharacter() {
                     border-zinc-700
                     "
 
-
                   />
 
 
                 </div>
 
-
               )
-
             }
 
 
-
           </div>
+
 
 
 
@@ -746,7 +784,6 @@ export default function NewCharacter() {
               {
                 origins.map((item)=>(
 
-
                   <option
 
                     key={item.name}
@@ -759,9 +796,7 @@ export default function NewCharacter() {
 
                   </option>
 
-
                 ))
-
               }
 
 
@@ -772,15 +807,17 @@ export default function NewCharacter() {
 
 
 
-
-
             <select
 
               value={className}
 
-              onChange={(e)=>
-                setClassName(e.target.value)
-              }
+              onChange={(e)=>{
+
+                setClassName(e.target.value);
+
+                setTrilha("");
+
+              }}
 
 
               className="
@@ -804,7 +841,6 @@ export default function NewCharacter() {
               {
                 classes.map((item)=>(
 
-
                   <option
 
                     key={item.name}
@@ -817,14 +853,11 @@ export default function NewCharacter() {
 
                   </option>
 
-
                 ))
-
               }
 
 
             </select>
-
 
 
           </div>
@@ -839,14 +872,72 @@ export default function NewCharacter() {
 
           <select
 
+            value={trilha}
+
+            onChange={(e)=>
+              setTrilha(e.target.value)
+            }
+
+
+            disabled={!className}
+
+
+            className="
+            w-full
+            bg-zinc-800
+            border
+            border-zinc-700
+            rounded-lg
+            p-3
+            disabled:opacity-50
+            "
+
+          >
+
+            <option value="">
+
+              Escolha uma trilha
+
+            </option>
+
+
+
+            {
+              trilhasDisponiveis.map((item)=>(
+
+                <option
+
+                  key={item.nome}
+
+                  value={item.nome}
+
+                >
+
+                  {item.nome}
+
+                </option>
+
+              ))
+            }
+
+
+          </select>
+
+
+
+
+
+
+
+
+
+          <select
 
             value={nex}
-
 
             onChange={(e)=>
               setNex(e.target.value)
             }
-
 
 
             className="
@@ -858,20 +949,15 @@ export default function NewCharacter() {
             p-3
             "
 
-
-
           >
 
 
-
             {
-
               Array.from(
 
                 {length:19},
 
                 (_,i)=>(
-
 
                   <option
 
@@ -885,14 +971,10 @@ export default function NewCharacter() {
 
                   </option>
 
-
                 )
 
               )
-
             }
-
-
 
 
 
@@ -901,7 +983,6 @@ export default function NewCharacter() {
               99%
 
             </option>
-
 
 
           </select>
@@ -930,7 +1011,6 @@ export default function NewCharacter() {
 
 
 
-
           <div className="
           grid
           grid-cols-5
@@ -938,38 +1018,26 @@ export default function NewCharacter() {
           ">
 
 
-
             {
-
               Object.keys(attributes).map((atributo)=>(
-
 
 
                 <input
 
-
                   key={atributo}
-
 
                   type="number"
 
-
                   min="0"
-
 
                   max="5"
 
 
-
                   value={
-
                     attributes[
                       atributo as keyof typeof attributes
                     ]
-
                   }
-
-
 
 
                   onChange={(e)=>
@@ -985,8 +1053,6 @@ export default function NewCharacter() {
                   }
 
 
-
-
                   className="
                   bg-zinc-800
                   rounded-lg
@@ -994,15 +1060,11 @@ export default function NewCharacter() {
                   text-center
                   "
 
-
                 />
 
 
-
               ))
-
             }
-
 
 
           </div>
@@ -1017,9 +1079,7 @@ export default function NewCharacter() {
 
           <button
 
-
             onClick={createCharacter}
-
 
 
             className="
@@ -1030,7 +1090,6 @@ export default function NewCharacter() {
             py-3
             font-bold
             "
-
 
           >
 
@@ -1043,8 +1102,8 @@ export default function NewCharacter() {
 
 
 
-        </div>
 
+        </div>
 
 
 
@@ -1052,10 +1111,10 @@ export default function NewCharacter() {
 
 
 
-
     </main>
 
 
   );
+
 
 }

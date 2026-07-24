@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 
 import { origins } from "@/app/data/origins";
 import { classes } from "@/app/data/classes";
+import { trilhas } from "@/app/data/trilhas";
 import { calcularStatus } from "@/app/data/system";
 
 
@@ -27,9 +28,20 @@ export default function EditCharacter() {
 
   const [image,setImage] = useState("");
 
+
+  const [historia,setHistoria] = useState("");
+
+  const [aparencia,setAparencia] = useState("");
+
+  const [anotacoes,setAnotacoes] = useState("");
+
+
+
   const [origin,setOrigin] = useState("");
 
   const [className,setClassName] = useState("");
+
+  const [trilha,setTrilha] = useState("");
 
   const [nex,setNex] = useState("5%");
 
@@ -78,7 +90,6 @@ export default function EditCharacter() {
 
 
 
-
     const personagem = lista.find(
 
       (item:any)=>
@@ -97,6 +108,7 @@ export default function EditCharacter() {
       setIdPersonagem(personagem.id);
 
 
+
       setName(
         personagem.nome || ""
       );
@@ -107,14 +119,41 @@ export default function EditCharacter() {
       );
 
 
+
+      setHistoria(
+        personagem.historia || ""
+      );
+
+
+
+      setAparencia(
+        personagem.aparencia || ""
+      );
+
+
+
+      setAnotacoes(
+        personagem.anotacoes || ""
+      );
+
+
+
       setOrigin(
         personagem.origem || ""
       );
 
 
+
       setClassName(
         personagem.classe || ""
       );
+
+
+
+      setTrilha(
+        personagem.trilha || ""
+      );
+
 
 
       setNex(
@@ -131,7 +170,7 @@ export default function EditCharacter() {
           AGI:1,
           INT:1,
           PRE:1,
-          VIG:1,
+          VIG:1
 
         }
 
@@ -139,8 +178,6 @@ export default function EditCharacter() {
 
 
     }
-
-
 
 
 
@@ -154,15 +191,12 @@ export default function EditCharacter() {
 
 
 
-
-
   function handleImage(
     e:React.ChangeEvent<HTMLInputElement>
   ){
 
 
     const arquivo = e.target.files?.[0];
-
 
 
     if(!arquivo){
@@ -174,7 +208,6 @@ export default function EditCharacter() {
 
 
     const leitor = new FileReader();
-
 
 
 
@@ -194,8 +227,7 @@ export default function EditCharacter() {
 
 
   }
-  function salvarAlteracao(){
-
+    function salvarAlteracao(){
 
 
     const dados = localStorage.getItem(
@@ -232,6 +264,19 @@ export default function EditCharacter() {
 
 
 
+    const trilhaSelecionada = trilhas.find(
+
+      (item)=>
+
+        item.classe === className &&
+
+        item.nome === trilha
+
+    );
+
+
+
+
 
 
     const novaLista = lista.map(
@@ -239,13 +284,10 @@ export default function EditCharacter() {
       (personagem:any)=>{
 
 
-
         if(personagem.id === idPersonagem){
 
 
-
           return {
-
 
 
             ...personagem,
@@ -260,17 +302,45 @@ export default function EditCharacter() {
 
 
 
+            historia:historia,
+
+
+
+            aparencia:aparencia,
+
+
+
+            anotacoes:anotacoes,
+
+
+
+
             origem:
+
               origin || "Não definido",
 
 
 
+
+
             classe:
+
               className || "Não definido",
 
 
 
+
+            trilha:
+
+              trilha || "Não definida",
+
+
+
+
+
             nex,
+
+
 
 
 
@@ -286,20 +356,40 @@ export default function EditCharacter() {
 
 
 
-            // mantém valores atuais se já existirem
 
             pvAtual:
+
               personagem.pvAtual ?? pv,
 
 
 
             peAtual:
+
               personagem.peAtual ?? pe,
 
 
 
             sanAtual:
+
               personagem.sanAtual ?? san,
+
+
+
+
+
+
+
+            poderesDesbloqueados:
+
+              personagem.poderesDesbloqueados || [],
+
+
+
+
+
+            habilidadeTrilha:
+
+              trilhaSelecionada?.descricao || "",
 
 
 
@@ -311,7 +401,6 @@ export default function EditCharacter() {
 
 
           };
-
 
 
         }
@@ -366,9 +455,6 @@ export default function EditCharacter() {
 
 
 
-
-
-
   function alterarAtributo(
 
     atributo:string,
@@ -376,7 +462,6 @@ export default function EditCharacter() {
     valor:string
 
   ){
-
 
 
     let numero = Number(valor);
@@ -392,13 +477,11 @@ export default function EditCharacter() {
 
 
 
-
     if(numero > 5){
 
       numero = 5;
 
     }
-
 
 
 
@@ -413,10 +496,23 @@ export default function EditCharacter() {
     });
 
 
-
   }
-  if(carregando){
 
+
+
+
+
+
+
+
+  const trilhasDisponiveis = trilhas.filter(
+
+    (item)=>
+
+      item.classe === className
+
+  );
+  if(carregando){
 
     return (
 
@@ -445,7 +541,6 @@ export default function EditCharacter() {
 
   if(!idPersonagem){
 
-
     return (
 
       <main className="
@@ -471,6 +566,7 @@ export default function EditCharacter() {
 
 
 
+
   return (
 
     <main className="
@@ -484,10 +580,7 @@ export default function EditCharacter() {
     ">
 
 
-
       <div className="w-full max-w-2xl">
-
-
 
 
 
@@ -501,7 +594,6 @@ export default function EditCharacter() {
           EDITAR PERSONAGEM
 
         </h1>
-
 
 
 
@@ -522,112 +614,175 @@ export default function EditCharacter() {
 
 
 
-          <div>
+          <input
 
-            <label className="text-zinc-400">
-              Nome do personagem
-            </label>
+            value={name}
 
-
-            <input
-
-              value={name}
-
-              onChange={(e)=>
-                setName(e.target.value)
-              }
-
-
-              className="
-              w-full
-              mt-2
-              bg-zinc-800
-              border
-              border-zinc-700
-              rounded-lg
-              p-3
-              "
-
-            />
-
-
-          </div>
-
-
-
-
-
-
-
-          <div>
-
-
-            <label className="text-zinc-400">
-              Imagem do personagem
-            </label>
-
-
-
-            <input
-
-              type="file"
-
-              accept="image/*"
-
-              onChange={handleImage}
-
-
-              className="
-              w-full
-              mt-2
-              bg-zinc-800
-              border
-              border-zinc-700
-              rounded-lg
-              p-3
-              "
-
-            />
-
-
-
-
-
-            {
-              image && (
-
-                <div className="
-                flex
-                justify-center
-                mt-4
-                ">
-
-
-                  <img
-
-                    src={image}
-
-                    alt={name}
-
-                    className="
-                    w-40
-                    h-40
-                    object-cover
-                    rounded-lg
-                    border
-                    border-zinc-700
-                    "
-
-                  />
-
-
-                </div>
-
-              )
+            onChange={(e)=>
+              setName(e.target.value)
             }
 
 
-          </div>
+            placeholder="Nome do personagem"
+
+
+            className="
+            w-full
+            bg-zinc-800
+            border
+            border-zinc-700
+            rounded-lg
+            p-3
+            "
+
+          />
+
+
+
+
+
+
+
+
+
+          <textarea
+
+            value={historia}
+
+            onChange={(e)=>
+              setHistoria(e.target.value)
+            }
+
+
+            placeholder="História"
+
+
+            className="
+            w-full
+            bg-zinc-800
+            border
+            border-zinc-700
+            rounded-lg
+            p-3
+            h-32
+            "
+
+          />
+
+
+
+
+
+
+
+
+          <textarea
+
+            value={aparencia}
+
+            onChange={(e)=>
+              setAparencia(e.target.value)
+            }
+
+
+            placeholder="Aparência"
+
+
+            className="
+            w-full
+            bg-zinc-800
+            border
+            border-zinc-700
+            rounded-lg
+            p-3
+            "
+
+          />
+
+
+
+
+
+
+
+
+          <textarea
+
+            value={anotacoes}
+
+            onChange={(e)=>
+              setAnotacoes(e.target.value)
+            }
+
+
+            placeholder="Anotações"
+
+
+            className="
+            w-full
+            bg-zinc-800
+            border
+            border-zinc-700
+            rounded-lg
+            p-3
+            "
+
+          />
+
+
+
+
+
+
+
+
+
+          <input
+
+            type="file"
+
+            accept="image/*"
+
+            onChange={handleImage}
+
+
+            className="
+            w-full
+            bg-zinc-800
+            border
+            border-zinc-700
+            rounded-lg
+            p-3
+            "
+
+          />
+
+
+
+
+
+          {
+            image && (
+
+              <img
+
+                src={image}
+
+                alt={name}
+
+                className="
+                w-40
+                h-40
+                object-cover
+                rounded-lg
+                mx-auto
+                "
+
+              />
+
+            )
+          }
+
 
 
 
@@ -648,14 +803,11 @@ export default function EditCharacter() {
             className="
             w-full
             bg-zinc-800
-            border
-            border-zinc-700
             rounded-lg
             p-3
             "
 
           >
-
 
             <option value="">
               Escolha uma origem
@@ -690,26 +842,28 @@ export default function EditCharacter() {
 
 
 
+
           <select
 
             value={className}
 
-            onChange={(e)=>
-              setClassName(e.target.value)
-            }
+            onChange={(e)=>{
+
+              setClassName(e.target.value);
+
+              setTrilha("");
+
+            }}
 
 
             className="
             w-full
             bg-zinc-800
-            border
-            border-zinc-700
             rounded-lg
             p-3
             "
 
           >
-
 
             <option value="">
               Escolha uma classe
@@ -747,6 +901,63 @@ export default function EditCharacter() {
 
           <select
 
+            value={trilha}
+
+            onChange={(e)=>
+              setTrilha(e.target.value)
+            }
+
+
+            disabled={!className}
+
+
+            className="
+            w-full
+            bg-zinc-800
+            rounded-lg
+            p-3
+            disabled:opacity-50
+            "
+
+          >
+
+            <option value="">
+              Escolha uma trilha
+            </option>
+
+
+
+            {
+              trilhasDisponiveis.map((item)=>(
+
+                <option
+
+                  key={item.nome}
+
+                  value={item.nome}
+
+                >
+
+                  {item.nome}
+
+                </option>
+
+              ))
+            }
+
+
+          </select>
+
+
+
+
+
+
+
+
+
+          <select
+
             value={nex}
 
             onChange={(e)=>
@@ -757,8 +968,6 @@ export default function EditCharacter() {
             className="
             w-full
             bg-zinc-800
-            border
-            border-zinc-700
             rounded-lg
             p-3
             "
@@ -768,7 +977,9 @@ export default function EditCharacter() {
 
             {
               Array.from(
+
                 {length:19},
+
                 (_,i)=>(
 
                   <option
@@ -784,9 +995,9 @@ export default function EditCharacter() {
                   </option>
 
                 )
+
               )
             }
-
 
 
             <option value="99%">
@@ -802,18 +1013,17 @@ export default function EditCharacter() {
 
 
 
+
+
           <h2 className="
           text-xl
-          font-bold
           text-red-500
+          font-bold
           ">
 
             Atributos
 
           </h2>
-
-
-
 
 
 
@@ -826,67 +1036,53 @@ export default function EditCharacter() {
           ">
 
 
-
             {
-              Object.keys(attributes).map(
-
-                (atributo)=>(
+              Object.keys(attributes).map((atributo)=>(
 
 
-                  <input
+                <input
+
+                  key={atributo}
+
+                  type="number"
+
+                  min="0"
+
+                  max="5"
 
 
-                    key={atributo}
+                  value={
+                    attributes[
+                      atributo as keyof typeof attributes
+                    ]
+                  }
 
 
-                    type="number"
+                  onChange={(e)=>
+
+                    alterarAtributo(
+
+                      atributo,
+
+                      e.target.value
+
+                    )
+
+                  }
 
 
-                    min="0"
+                  className="
+                  bg-zinc-800
+                  rounded-lg
+                  p-2
+                  text-center
+                  "
+
+                />
 
 
-                    max="5"
-
-
-
-                    value={
-                      attributes[
-                        atributo as keyof typeof attributes
-                      ]
-                    }
-
-
-
-
-                    onChange={(e)=>
-
-                      alterarAtributo(
-
-                        atributo,
-
-                        e.target.value
-
-                      )
-
-                    }
-
-
-
-                    className="
-                    bg-zinc-800
-                    rounded-lg
-                    p-2
-                    text-center
-                    "
-
-                  />
-
-
-                )
-
-              )
+              ))
             }
-
 
 
           </div>
@@ -923,21 +1119,15 @@ export default function EditCharacter() {
 
 
 
-
-
         </div>
-
-
 
 
       </div>
 
 
-
-
     </main>
 
-
   );
+
 
 }
