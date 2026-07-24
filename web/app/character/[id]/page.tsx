@@ -3,43 +3,27 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 
+import { progressaoClasse } from "@/app/data/progressao";
+import { trilhas } from "@/app/data/trilhas";
 
 export default function CharacterPage() {
 
-
   const [personagem, setPersonagem] = useState<any>(null);
 
-
   const params = useParams();
-
   const router = useRouter();
-
-
-
-
 
   useEffect(() => {
 
-
     const id = String(params.id);
-
-
 
     const dados = localStorage.getItem(
       "personagens"
     );
 
-
-
     if(!dados) return;
 
-
-
-
     const personagens = JSON.parse(dados);
-
-
-
 
     const encontrado = personagens.find(
 
@@ -49,56 +33,75 @@ export default function CharacterPage() {
 
     );
 
-
-
-
     if(!encontrado) return;
 
+    const nexAtual = parseInt(encontrado.nex);
 
+    const progressao = progressaoClasse.find(
 
+      (item)=>
 
+        item.classe === encontrado.classe
+
+    );
+
+    const trilhaAtual = trilhas.find(
+
+      (item)=>
+
+        item.nome === encontrado.trilha
+
+    );
+
+    const poderesClasse =
+
+      progressao?.poderes.filter(
+
+        (item)=>
+
+          parseInt(item.nex) <= nexAtual
+
+      ) || [];
+
+    const poderesTrilha =
+
+      trilhaAtual?.poderes.filter(
+
+        (item)=>
+
+          parseInt(item.nex) <= nexAtual
+
+      ) || [];
 
     const personagemAtualizado = {
 
-
       ...encontrado,
 
+      poderesClasse,
 
+      poderesTrilha,
 
       pvAtual:
 
         encontrado.pvAtual ??
+
         encontrado.pv,
-
-
 
       peAtual:
 
         encontrado.peAtual ??
+
         encontrado.pe,
-
-
 
       sanAtual:
 
         encontrado.sanAtual ??
+
         encontrado.san,
-
-
 
     };
 
-
-
-
-
-    setPersonagem(
-      personagemAtualizado
-    );
-
-
-
-
+    setPersonagem(personagemAtualizado);
 
     const listaAtualizada = personagens.map(
 
@@ -106,19 +109,11 @@ export default function CharacterPage() {
 
         item.id === id
 
-        ?
+          ? personagemAtualizado
 
-        personagemAtualizado
-
-        :
-
-        item
+          : item
 
     );
-
-
-
-
 
     localStorage.setItem(
 
@@ -128,22 +123,8 @@ export default function CharacterPage() {
 
     );
 
-
-
-  },[params.id]);
-
-
-
-
-
-
-
-
-
-
-
-
-  function alterarStatus(
+  }, [params.id]);
+    function alterarStatus(
 
     tipo:"pv"|"pe"|"san",
 
@@ -151,13 +132,7 @@ export default function CharacterPage() {
 
   ){
 
-
-
     if(!personagem) return;
-
-
-
-
 
     const novo = {
 
@@ -165,15 +140,9 @@ export default function CharacterPage() {
 
     };
 
-
-
-
-
     if(tipo==="pv"){
 
-
       novo.pvAtual += valor;
-
 
       novo.pvAtual = Math.max(
 
@@ -189,19 +158,11 @@ export default function CharacterPage() {
 
       );
 
-
     }
-
-
-
-
-
 
     if(tipo==="pe"){
 
-
       novo.peAtual += valor;
-
 
       novo.peAtual = Math.max(
 
@@ -217,20 +178,11 @@ export default function CharacterPage() {
 
       );
 
-
     }
-
-
-
-
-
-
 
     if(tipo==="san"){
 
-
       novo.sanAtual += valor;
-
 
       novo.sanAtual = Math.max(
 
@@ -246,13 +198,7 @@ export default function CharacterPage() {
 
       );
 
-
     }
-
-
-
-
-
 
     const dados = JSON.parse(
 
@@ -260,29 +206,17 @@ export default function CharacterPage() {
 
     );
 
-
-
-
-
     const lista = dados.map(
 
       (item:any)=>
 
         item.id === personagem.id
 
-        ?
+          ? novo
 
-        novo
-
-        :
-
-        item
+          : item
 
     );
-
-
-
-
 
     localStorage.setItem(
 
@@ -292,29 +226,11 @@ export default function CharacterPage() {
 
     );
 
-
-
-
-
     setPersonagem(novo);
-
-
 
   }
 
-
-
-
-
-
-
-
-
-
-
-
   if(!personagem){
-
 
     return(
 
@@ -328,18 +244,18 @@ export default function CharacterPage() {
       ">
 
         <p className="text-zinc-400">
-          Nenhum personagem encontrado
-        </p>
 
+          Nenhum personagem encontrado
+
+        </p>
 
       </main>
 
     );
 
-
   }
-    return(
 
+  return(
 
     <main className="
     min-h-screen
@@ -351,10 +267,7 @@ export default function CharacterPage() {
     p-5
     ">
 
-
       <div className="w-full max-w-xl">
-
-
 
         <h1 className="
         text-5xl
@@ -368,10 +281,6 @@ export default function CharacterPage() {
 
         </h1>
 
-
-
-
-
         <div className="
         mt-10
         bg-zinc-900
@@ -380,9 +289,6 @@ export default function CharacterPage() {
         rounded-lg
         p-6
         ">
-
-
-
 
           <h2 className="
           text-3xl
@@ -394,12 +300,8 @@ export default function CharacterPage() {
 
           </h2>
 
-
-
-
-
-
           {
+
             personagem.imagem && (
 
               <div className="
@@ -408,13 +310,11 @@ export default function CharacterPage() {
               mt-5
               ">
 
-
                 <img
 
                   src={personagem.imagem}
 
                   alt={personagem.nome}
-
 
                   className="
                   w-48
@@ -427,16 +327,11 @@ export default function CharacterPage() {
 
                 />
 
-
               </div>
 
             )
+
           }
-
-
-
-
-
 
           <div className="
           flex
@@ -444,11 +339,12 @@ export default function CharacterPage() {
           mt-5
           ">
 
-
             <button
 
               onClick={()=>
+
                 router.push("/character")
+
               }
 
               className="
@@ -466,14 +362,9 @@ export default function CharacterPage() {
 
             </button>
 
-
-
-
-
             <button
 
               onClick={()=>
-
 
                 router.push(
 
@@ -481,9 +372,7 @@ export default function CharacterPage() {
 
                 )
 
-
               }
-
 
               className="
               flex-1
@@ -500,16 +389,7 @@ export default function CharacterPage() {
 
             </button>
 
-
-
           </div>
-
-
-
-
-
-
-
 
           <div className="
           mt-6
@@ -517,7 +397,6 @@ export default function CharacterPage() {
           grid-cols-3
           gap-3
           ">
-
 
             <StatusBox
 
@@ -528,18 +407,18 @@ export default function CharacterPage() {
               max={personagem.pv}
 
               onMinus={()=>
+
                 alterarStatus("pv",-1)
+
               }
 
               onPlus={()=>
+
                 alterarStatus("pv",1)
+
               }
 
             />
-
-
-
-
 
             <StatusBox
 
@@ -550,18 +429,18 @@ export default function CharacterPage() {
               max={personagem.pe}
 
               onMinus={()=>
+
                 alterarStatus("pe",-1)
+
               }
 
               onPlus={()=>
+
                 alterarStatus("pe",1)
+
               }
 
             />
-
-
-
-
 
             <StatusBox
 
@@ -572,35 +451,25 @@ export default function CharacterPage() {
               max={personagem.san}
 
               onMinus={()=>
+
                 alterarStatus("san",-1)
+
               }
 
               onPlus={()=>
+
                 alterarStatus("san",1)
+
               }
 
             />
 
-
-
           </div>
-
-
-
-
-
-
-
-
-
-          <div className="
+		            <div className="
           mt-8
           space-y-3
           text-zinc-300
           ">
-
-
-
 
             <p>
 
@@ -612,10 +481,6 @@ export default function CharacterPage() {
 
             </p>
 
-
-
-
-
             <p>
 
               <span className="text-zinc-500">
@@ -626,9 +491,15 @@ export default function CharacterPage() {
 
             </p>
 
+            <p>
 
+              <span className="text-zinc-500">
+                Trilha:
+              </span>{" "}
 
+              {personagem.trilha || "Nenhuma"}
 
+            </p>
 
             <p>
 
@@ -640,17 +511,7 @@ export default function CharacterPage() {
 
             </p>
 
-
-
-
           </div>
-
-
-
-
-
-
-
 
           <h3 className="
           mt-8
@@ -663,10 +524,6 @@ export default function CharacterPage() {
 
           </h3>
 
-
-
-
-
           <div className="
           mt-4
           bg-zinc-800
@@ -674,7 +531,6 @@ export default function CharacterPage() {
           p-4
           space-y-3
           ">
-
 
             <p>
 
@@ -686,9 +542,6 @@ export default function CharacterPage() {
 
             </p>
 
-
-
-
             <p>
 
               <span className="text-zinc-500">
@@ -699,9 +552,9 @@ export default function CharacterPage() {
 
             </p>
 
-
           </div>
-		            <h3 className="
+
+          <h3 className="
           mt-8
           text-xl
           font-bold
@@ -711,9 +564,6 @@ export default function CharacterPage() {
             História
 
           </h3>
-
-
-
 
           <div className="
           mt-4
@@ -729,11 +579,6 @@ export default function CharacterPage() {
 
           </div>
 
-
-
-
-
-
           <h3 className="
           mt-8
           text-xl
@@ -745,10 +590,6 @@ export default function CharacterPage() {
 
           </h3>
 
-
-
-
-
           <div className="
           mt-4
           bg-zinc-800
@@ -757,19 +598,11 @@ export default function CharacterPage() {
           text-zinc-300
           ">
 
-
             {personagem.aparencia ||
 
             "Nenhuma aparência registrada"}
 
-
           </div>
-
-
-
-
-
-
 
           <h3 className="
           mt-8
@@ -782,10 +615,6 @@ export default function CharacterPage() {
 
           </h3>
 
-
-
-
-
           <div className="
           mt-4
           bg-zinc-800
@@ -794,21 +623,11 @@ export default function CharacterPage() {
           text-zinc-300
           ">
 
-
             {personagem.anotacoes ||
 
             "Nenhuma anotação registrada"}
 
-
           </div>
-
-
-
-
-
-
-
-
 
           <h3 className="
           mt-8
@@ -821,10 +640,6 @@ export default function CharacterPage() {
 
           </h3>
 
-
-
-
-
           <div className="
           mt-4
           bg-zinc-800
@@ -832,12 +647,9 @@ export default function CharacterPage() {
           p-4
           ">
 
-
-
             {
 
               personagem.pericias?.length > 0 ?
-
 
               (
 
@@ -846,12 +658,11 @@ export default function CharacterPage() {
                 text-zinc-300
                 ">
 
-
                   {
+
                     personagem.pericias.map(
 
                       (item:string,index:number)=>(
-
 
                         <li
                           key={`${item}-${index}`}
@@ -861,21 +672,17 @@ export default function CharacterPage() {
 
                         </li>
 
-
                       )
 
                     )
-                  }
 
+                  }
 
                 </ul>
 
-
               )
 
-
               :
-
 
               (
 
@@ -885,109 +692,174 @@ export default function CharacterPage() {
 
                 </p>
 
-
               )
-
 
             }
 
-
           </div>
+		  <h3 className="
+mt-8
+text-xl
+font-bold
+text-red-500
+">
 
+  Progressão da Classe
 
+</h3>
 
+<div className="
+mt-4
+space-y-3
+">
 
+  {
 
+    personagem.poderesClasse?.length > 0 ?
 
+    (
 
+      personagem.poderesClasse.map((p:any)=>(
 
+        <div
 
-          <h3 className="
-          mt-8
-          text-xl
-          font-bold
-          text-red-500
-          ">
+          key={p.nex}
 
-            Poder de Origem
-
-          </h3>
-
-
-
-
-
-          <div className="
-          mt-4
+          className="
           bg-zinc-800
           rounded-lg
           p-4
-          ">
+          border
+          border-zinc-700
+          "
 
-            {personagem.poder || "Nenhum"}
+        >
 
-          </div>
+          <p className="text-red-500 font-bold">
 
+            {p.nex}
 
+          </p>
 
+          <p className="font-bold mt-2">
 
+            {p.nome}
 
+          </p>
 
+          <p className="text-zinc-400 mt-2">
 
+            {p.descricao}
 
-          <h3 className="
-          mt-8
-          text-xl
-          font-bold
-          text-red-500
-          ">
+          </p>
 
-            Habilidade de Classe
+        </div>
 
-          </h3>
+      ))
 
+    )
 
+    :
 
+    (
 
+      <div className="
+      bg-zinc-800
+      rounded-lg
+      p-4
+      ">
 
+        Nenhum poder desbloqueado.
 
-          <div className="
-          mt-4
+      </div>
+
+    )
+
+  }
+
+</div>
+
+<h3 className="
+mt-8
+text-xl
+font-bold
+text-red-500
+">
+
+  Progressão da Trilha
+
+</h3>
+
+<div className="
+mt-4
+space-y-3
+">
+
+  {
+
+    personagem.poderesTrilha?.length > 0 ?
+
+    (
+
+      personagem.poderesTrilha.map((p:any)=>(
+
+        <div
+
+          key={p.nex}
+
+          className="
           bg-zinc-800
           rounded-lg
           p-4
-          ">
+          border
+          border-zinc-700
+          "
 
+        >
 
-            <p className="font-bold">
+          <p className="text-red-500 font-bold">
 
-              {personagem.habilidadeClasse || "Nenhuma"}
+            {p.nex}
 
-            </p>
+          </p>
 
+          <p className="font-bold mt-2">
 
+            {p.nome}
 
+          </p>
 
-            <p className="
-            text-zinc-400
-            mt-2
-            ">
+          <p className="text-zinc-400 mt-2">
 
-              {personagem.descricaoClasse || ""}
+            {p.descricao}
 
-            </p>
+          </p>
 
+        </div>
 
-          </div>
+      ))
 
+    )
 
+    :
 
+    (
 
+      <div className="
+      bg-zinc-800
+      rounded-lg
+      p-4
+      ">
 
+        Nenhum poder de trilha desbloqueado.
 
+      </div>
 
+    )
 
+  }
 
+</div>
           <h3 className="
           mt-8
           text-xl
@@ -999,11 +871,6 @@ export default function CharacterPage() {
 
           </h3>
 
-
-
-
-
-
           <div className="
           mt-4
           grid
@@ -1011,9 +878,8 @@ export default function CharacterPage() {
           gap-3
           ">
 
-
-
             {
+
               Object.entries(
 
                 personagem.atributos || {}
@@ -1021,7 +887,6 @@ export default function CharacterPage() {
               ).map(
 
                 ([atributo,valor])=>(
-
 
                   <div
 
@@ -1036,7 +901,6 @@ export default function CharacterPage() {
 
                   >
 
-
                     <p className="
                     text-zinc-400
                     text-sm
@@ -1045,9 +909,6 @@ export default function CharacterPage() {
                       {atributo}
 
                     </p>
-
-
-
 
                     <p className="
                     text-2xl
@@ -1058,9 +919,7 @@ export default function CharacterPage() {
 
                     </p>
 
-
                   </div>
-
 
                 )
 
@@ -1068,37 +927,17 @@ export default function CharacterPage() {
 
             }
 
-
-
           </div>
-
-
-
-
-
-
 
         </div>
 
-
-
       </div>
-
-
 
     </main>
 
-
   );
 
-
 }
-
-
-
-
-
-
 
 function StatusBox({
 
@@ -1112,13 +951,9 @@ function StatusBox({
 
   onPlus
 
-
 }:any){
 
-
-
   return(
-
 
     <div className="
     bg-zinc-800
@@ -1127,17 +962,11 @@ function StatusBox({
     text-center
     ">
 
-
-
       <p className="text-zinc-500 text-sm">
 
         {nome}
 
       </p>
-
-
-
-
 
       <p className="
       text-xl
@@ -1148,19 +977,12 @@ function StatusBox({
 
       </p>
 
-
-
-
-
-
       <div className="
       flex
       justify-center
       gap-2
       mt-3
       ">
-
-
 
         <button
 
@@ -1178,11 +1000,6 @@ function StatusBox({
 
         </button>
 
-
-
-
-
-
         <button
 
           onClick={onPlus}
@@ -1199,15 +1016,9 @@ function StatusBox({
 
         </button>
 
-
-
       </div>
 
-
-
-
     </div>
-
 
   );
 
