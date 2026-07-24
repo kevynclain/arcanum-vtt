@@ -10,41 +10,59 @@ export default function NewCharacter() {
 
   const router = useRouter();
 
+
   const [name, setName] = useState("");
+  const [player, setPlayer] = useState("");
+  const [age, setAge] = useState("");
+  const [appearance, setAppearance] = useState("");
+  const [history, setHistory] = useState("");
+  const [notes, setNotes] = useState("");
+
   const [image, setImage] = useState("");
   const [origin, setOrigin] = useState("");
   const [className, setClassName] = useState("");
   const [nex, setNex] = useState("5%");
 
 
+
   const [attributes, setAttributes] = useState({
-    FOR: 1,
-    AGI: 1,
-    INT: 1,
-    PRE: 1,
-    VIG: 1,
+
+    FOR:1,
+    AGI:1,
+    INT:1,
+    PRE:1,
+    VIG:1,
+
   });
 
 
 
+
+
   function changeAttribute(
-    atributo: string,
-    valor: string
-  ) {
+    atributo:string,
+    valor:string
+  ){
 
     let numero = Number(valor);
 
-    if (numero < 0) {
+
+    if(numero < 0){
       numero = 0;
     }
 
-    if (numero > 5) {
+
+    if(numero > 5){
       numero = 5;
     }
 
+
     setAttributes({
+
       ...attributes,
-      [atributo]: numero,
+
+      [atributo]:numero,
+
     });
 
   }
@@ -53,9 +71,49 @@ export default function NewCharacter() {
 
 
 
-  function createCharacter() {
 
-    if (!name.trim()) {
+  function handleImage(
+    e:React.ChangeEvent<HTMLInputElement>
+  ){
+
+    const arquivo = e.target.files?.[0];
+
+
+    if(!arquivo){
+      return;
+    }
+
+
+    const leitor = new FileReader();
+
+
+    leitor.onload = () => {
+
+      setImage(
+        String(leitor.result)
+      );
+
+    };
+
+
+    leitor.readAsDataURL(arquivo);
+
+  }
+
+
+
+
+
+
+
+  function createCharacter(){
+
+
+    const nomeFinal = name.trim();
+
+
+
+    if(!nomeFinal){
 
       alert("Digite o nome do personagem");
 
@@ -64,17 +122,10 @@ export default function NewCharacter() {
     }
 
 
-    const origemSelecionada = origins.find(
-      (item) => item.name === origin
-    );
 
 
-    const classeSelecionada = classes.find(
-      (item) => item.name === className
-    );
 
-
-    if (!className) {
+    if(!className){
 
       alert("Selecione uma classe.");
 
@@ -84,31 +135,91 @@ export default function NewCharacter() {
 
 
 
-    const { pv, pe, san } = calcularStatus(
-      className,
-      attributes,
-      nex
+
+
+
+    const origemSelecionada = origins.find(
+
+      (item)=>
+        item.name === origin
+
     );
+
+
+
+    const classeSelecionada = classes.find(
+
+      (item)=>
+        item.name === className
+
+    );
+
+
+
+
+
+
+
+    const {
+      pv,
+      pe,
+      san
+
+    } = calcularStatus(
+
+      className,
+
+      attributes,
+
+      nex
+
+    );
+
+
+
+
 
 
 
     const personagem = {
 
-
-      nome: name,
-
-
-      imagem: image,
+      id: crypto.randomUUID(),
 
 
-      origem: origin || "Não definido",
+      nome:nomeFinal,
 
 
-      classe: className || "Não definido",
+      jogador:player,
+
+
+      idade:age,
+
+
+      aparencia:appearance,
+
+
+      historia:history,
+
+
+      anotacoes:notes,
+
+
+
+      imagem:image,
+
+
+
+      origem:
+        origin || "Não definido",
+
+
+
+      classe:
+        className || "Não definido",
+
 
 
       nex,
-
 
 
       pv,
@@ -118,38 +229,50 @@ export default function NewCharacter() {
       san,
 
 
+      pvAtual:pv,
 
-      pvAtual: pv,
+      peAtual:pe,
 
-      peAtual: pe,
+      sanAtual:san,
+	        pericias:[
 
-      sanAtual: san,
-
-
-
-      pericias: [
         ...(origemSelecionada?.skills || []),
+
         ...(classeSelecionada?.skills || [])
+
       ],
 
 
 
+
       poder:
+
         origemSelecionada?.power || "Nenhum",
 
 
 
+
+
       habilidadeClasse:
+
         classeSelecionada?.ability || "Nenhuma",
 
 
 
+
+
+
       descricaoClasse:
+
         classeSelecionada?.description || "",
 
 
 
-      atributos: attributes,
+
+
+
+      atributos:attributes,
+
 
 
     };
@@ -157,9 +280,15 @@ export default function NewCharacter() {
 
 
 
+
+
     const personagensSalvos = JSON.parse(
+
       localStorage.getItem("personagens") || "[]"
+
     );
+
+
 
 
 
@@ -167,14 +296,26 @@ export default function NewCharacter() {
 
 
 
+
+
     localStorage.setItem(
+
       "personagens",
+
       JSON.stringify(personagensSalvos)
+
     );
 
 
 
-    router.push(`/character/${name}`);
+
+
+
+    router.push(
+
+      `/character/${personagem.id}`
+
+    );
 
 
   }
@@ -184,29 +325,66 @@ export default function NewCharacter() {
 
 
 
+
   return (
 
-    <main className="min-h-screen bg-[#08080a] text-white flex items-center justify-center">
+    <main className="
+    min-h-screen
+    bg-[#08080a]
+    text-white
+    flex
+    items-center
+    justify-center
+    ">
 
 
       <div className="w-full max-w-2xl">
 
 
-        <h1 className="text-4xl font-black text-red-600 tracking-widest text-center">
+
+        <h1 className="
+        text-4xl
+        font-black
+        text-red-600
+        tracking-widest
+        text-center
+        ">
+
           NOVO PERSONAGEM
+
         </h1>
 
 
 
-        <p className="text-zinc-500 text-center mt-3">
+
+
+        <p className="
+        text-zinc-500
+        text-center
+        mt-3
+        ">
+
           Crie sua ficha de investigação paranormal
+
         </p>
 
 
 
 
 
-        <div className="mt-10 bg-zinc-900 border border-zinc-700 rounded-lg p-6 space-y-5">
+
+        <div className="
+        mt-10
+        bg-zinc-900
+        border
+        border-zinc-700
+        rounded-lg
+        p-6
+        space-y-5
+        ">
+
+
+
 
 
 
@@ -221,7 +399,10 @@ export default function NewCharacter() {
 
               value={name}
 
-              onChange={(e)=>setName(e.target.value)}
+              onChange={(e)=>
+                setName(e.target.value)
+              }
+
 
               className="
               w-full
@@ -243,18 +424,24 @@ export default function NewCharacter() {
 
 
 
+
+
+
           <div>
 
             <label className="text-zinc-400">
-              Imagem do personagem (URL)
+              Jogador
             </label>
 
 
             <input
 
-              value={image}
+              value={player}
 
-              onChange={(e)=>setImage(e.target.value)}
+              onChange={(e)=>
+                setPlayer(e.target.value)
+              }
+
 
               className="
               w-full
@@ -266,125 +453,14 @@ export default function NewCharacter() {
               p-3
               "
 
-              placeholder="Cole o link da imagem aqui"
+              placeholder="Nome do jogador"
 
             />
 
-
           </div>
 
 
 
-
-
-
-          <div className="grid grid-cols-2 gap-4">
-
-
-            <div>
-
-              <label className="text-zinc-400">
-                Origem
-              </label>
-
-
-              <select
-
-                value={origin}
-
-                onChange={(e)=>setOrigin(e.target.value)}
-
-                className="
-                w-full
-                mt-2
-                bg-zinc-800
-                border
-                border-zinc-700
-                rounded-lg
-                p-3
-                "
-
-              >
-
-                <option value="">
-                  Escolha uma origem
-                </option>
-
-
-                {origins.map((item)=>(
-
-                  <option
-                    key={item.name}
-                    value={item.name}
-                  >
-
-                    {item.name}
-
-                  </option>
-
-                ))}
-
-
-              </select>
-
-
-            </div>
-
-
-
-
-
-            <div>
-
-              <label className="text-zinc-400">
-                Classe
-              </label>
-
-
-              <select
-
-                value={className}
-
-                onChange={(e)=>setClassName(e.target.value)}
-
-                className="
-                w-full
-                mt-2
-                bg-zinc-800
-                border
-                border-zinc-700
-                rounded-lg
-                p-3
-                "
-
-              >
-
-                <option value="">
-                  Escolha uma classe
-                </option>
-
-
-                {classes.map((item)=>(
-
-                  <option
-                    key={item.name}
-                    value={item.name}
-                  >
-
-                    {item.name}
-
-                  </option>
-
-                ))}
-
-
-              </select>
-
-
-            </div>
-
-
-          </div>
 
 
 
@@ -393,19 +469,263 @@ export default function NewCharacter() {
           <div>
 
             <label className="text-zinc-400">
-              NEX
+              Idade
             </label>
 
 
-            <select
+            <input
 
-              value={nex}
+              value={age}
 
-              onChange={(e)=>setNex(e.target.value)}
+              onChange={(e)=>
+                setAge(e.target.value)
+              }
+
 
               className="
               w-full
               mt-2
+              bg-zinc-800
+              border
+              border-zinc-700
+              rounded-lg
+              p-3
+              "
+
+              placeholder="Ex: 25"
+
+            />
+
+          </div>
+
+
+
+
+
+
+
+
+          <div>
+
+            <label className="text-zinc-400">
+              Aparência
+            </label>
+
+
+            <textarea
+
+              value={appearance}
+
+              onChange={(e)=>
+                setAppearance(e.target.value)
+              }
+
+
+              className="
+              w-full
+              mt-2
+              bg-zinc-800
+              border
+              border-zinc-700
+              rounded-lg
+              p-3
+              min-h-24
+              "
+
+              placeholder="Descreva a aparência do personagem"
+
+            />
+
+          </div>
+
+
+
+
+
+
+
+
+          <div>
+
+            <label className="text-zinc-400">
+              História
+            </label>
+
+
+            <textarea
+
+              value={history}
+
+              onChange={(e)=>
+                setHistory(e.target.value)
+              }
+
+
+              className="
+              w-full
+              mt-2
+              bg-zinc-800
+              border
+              border-zinc-700
+              rounded-lg
+              p-3
+              min-h-32
+              "
+
+              placeholder="História do personagem"
+
+            />
+
+          </div>
+
+
+
+
+
+
+
+
+          <div>
+
+            <label className="text-zinc-400">
+              Anotações
+            </label>
+
+
+            <textarea
+
+              value={notes}
+
+              onChange={(e)=>
+                setNotes(e.target.value)
+              }
+
+
+              className="
+              w-full
+              mt-2
+              bg-zinc-800
+              border
+              border-zinc-700
+              rounded-lg
+              p-3
+              min-h-24
+              "
+
+              placeholder="Informações extras"
+
+            />
+
+          </div>
+		            <div>
+
+            <label className="text-zinc-400">
+
+              Imagem do personagem
+
+            </label>
+
+
+
+
+            <input
+
+
+              type="file"
+
+
+              accept="image/*"
+
+
+
+              onChange={handleImage}
+
+
+
+              className="
+              w-full
+              mt-2
+              bg-zinc-800
+              border
+              border-zinc-700
+              rounded-lg
+              p-3
+              "
+
+
+            />
+
+
+
+
+
+            {
+              image && (
+
+
+                <div className="
+                flex
+                justify-center
+                mt-4
+                ">
+
+
+                  <img
+
+
+                    src={image}
+
+
+                    alt="Preview"
+
+
+                    className="
+                    w-40
+                    h-40
+                    object-cover
+                    rounded-lg
+                    border
+                    border-zinc-700
+                    "
+
+
+                  />
+
+
+                </div>
+
+
+              )
+
+            }
+
+
+
+          </div>
+
+
+
+
+
+
+
+          <div className="
+          grid
+          grid-cols-2
+          gap-4
+          ">
+
+
+            <select
+
+              value={origin}
+
+              onChange={(e)=>
+                setOrigin(e.target.value)
+              }
+
+
+              className="
               bg-zinc-800
               border
               border-zinc-700
@@ -415,97 +735,281 @@ export default function NewCharacter() {
 
             >
 
+              <option value="">
 
-              {Array.from(
-                {length:19},
-                (_,i)=>{
+                Escolha uma origem
 
-                  const valor=(i+1)*5;
-
-                  return (
-
-                    <option
-                      key={valor}
-                      value={`${valor}%`}
-                    >
-
-                      {valor}%
-
-                    </option>
-
-                  );
-
-                }
-
-              )}
-
-
-              <option value="99%">
-                99%
               </option>
+
+
+
+              {
+                origins.map((item)=>(
+
+
+                  <option
+
+                    key={item.name}
+
+                    value={item.name}
+
+                  >
+
+                    {item.name}
+
+                  </option>
+
+
+                ))
+
+              }
 
 
             </select>
 
 
+
+
+
+
+
+
+            <select
+
+              value={className}
+
+              onChange={(e)=>
+                setClassName(e.target.value)
+              }
+
+
+              className="
+              bg-zinc-800
+              border
+              border-zinc-700
+              rounded-lg
+              p-3
+              "
+
+            >
+
+              <option value="">
+
+                Escolha uma classe
+
+              </option>
+
+
+
+              {
+                classes.map((item)=>(
+
+
+                  <option
+
+                    key={item.name}
+
+                    value={item.name}
+
+                  >
+
+                    {item.name}
+
+                  </option>
+
+
+                ))
+
+              }
+
+
+            </select>
+
+
+
           </div>
 
 
 
 
 
-          <h2 className="text-xl font-bold text-red-500 pt-4">
+
+
+
+
+          <select
+
+
+            value={nex}
+
+
+            onChange={(e)=>
+              setNex(e.target.value)
+            }
+
+
+
+            className="
+            w-full
+            bg-zinc-800
+            border
+            border-zinc-700
+            rounded-lg
+            p-3
+            "
+
+
+
+          >
+
+
+
+            {
+
+              Array.from(
+
+                {length:19},
+
+                (_,i)=>(
+
+
+                  <option
+
+                    key={i}
+
+                    value={`${(i+1)*5}%`}
+
+                  >
+
+                    {(i+1)*5}%
+
+                  </option>
+
+
+                )
+
+              )
+
+            }
+
+
+
+
+
+            <option value="99%">
+
+              99%
+
+            </option>
+
+
+
+          </select>
+
+
+
+
+
+
+
+
+
+          <h2 className="
+          text-xl
+          font-bold
+          text-red-500
+          ">
+
             Atributos
+
           </h2>
 
 
 
 
-          <div className="grid grid-cols-5 gap-3">
 
 
-            {Object.keys(attributes).map((atributo)=>(
 
 
-              <input
-
-                key={atributo}
-
-                type="number"
-
-                min="0"
-
-                max="5"
-
-                value={
-                  attributes[
-                    atributo as keyof typeof attributes
-                  ]
-                }
+          <div className="
+          grid
+          grid-cols-5
+          gap-3
+          ">
 
 
-                onChange={(e)=>
-                  changeAttribute(
-                    atributo,
-                    e.target.value
-                  )
-                }
+
+            {
+
+              Object.keys(attributes).map((atributo)=>(
 
 
-                className="
-                bg-zinc-800
-                rounded-lg
-                p-2
-                text-center
-                "
 
-              />
+                <input
 
 
-            ))}
+                  key={atributo}
+
+
+                  type="number"
+
+
+                  min="0"
+
+
+                  max="5"
+
+
+
+                  value={
+
+                    attributes[
+                      atributo as keyof typeof attributes
+                    ]
+
+                  }
+
+
+
+
+                  onChange={(e)=>
+
+                    changeAttribute(
+
+                      atributo,
+
+                      e.target.value
+
+                    )
+
+                  }
+
+
+
+
+                  className="
+                  bg-zinc-800
+                  rounded-lg
+                  p-2
+                  text-center
+                  "
+
+
+                />
+
+
+
+              ))
+
+            }
+
 
 
           </div>
+
+
+
+
 
 
 
@@ -513,7 +1017,10 @@ export default function NewCharacter() {
 
           <button
 
+
             onClick={createCharacter}
+
+
 
             className="
             w-full
@@ -524,21 +1031,30 @@ export default function NewCharacter() {
             font-bold
             "
 
+
           >
 
-            Criar Personagem
+            Salvar Personagem
+
 
           </button>
+
+
 
 
 
         </div>
 
 
+
+
       </div>
 
 
+
+
     </main>
+
 
   );
 

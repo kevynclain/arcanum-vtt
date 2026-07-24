@@ -2,42 +2,58 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+
 import { origins } from "@/app/data/origins";
 import { classes } from "@/app/data/classes";
 import { calcularStatus } from "@/app/data/system";
 
+
 export default function EditCharacter() {
 
+
   const router = useRouter();
+
   const params = useParams();
 
 
-  const [nomeOriginal, setNomeOriginal] = useState("");
 
-  const [carregando, setCarregando] = useState(true);
+  const [idPersonagem,setIdPersonagem] = useState("");
 
-
-  const [name, setName] = useState("");
-  const [origin, setOrigin] = useState("");
-  const [className, setClassName] = useState("");
-  const [nex, setNex] = useState("5%");
+  const [carregando,setCarregando] = useState(true);
 
 
-  const [attributes, setAttributes] = useState({
-    FOR: 1,
-    AGI: 1,
-    INT: 1,
-    PRE: 1,
-    VIG: 1,
+
+  const [name,setName] = useState("");
+
+  const [image,setImage] = useState("");
+
+  const [origin,setOrigin] = useState("");
+
+  const [className,setClassName] = useState("");
+
+  const [nex,setNex] = useState("5%");
+
+
+
+  const [attributes,setAttributes] = useState({
+
+    FOR:1,
+    AGI:1,
+    INT:1,
+    PRE:1,
+    VIG:1,
+
   });
 
 
 
-  useEffect(() => {
 
-    const id = decodeURIComponent(
-      String(params.id)
-    );
+
+  useEffect(()=>{
+
+
+    const id = String(params.id);
+
 
 
     const dados = localStorage.getItem(
@@ -45,7 +61,8 @@ export default function EditCharacter() {
     );
 
 
-    if (!dados) {
+
+    if(!dados){
 
       setCarregando(false);
 
@@ -54,47 +71,131 @@ export default function EditCharacter() {
     }
 
 
+
+
     const lista = JSON.parse(dados);
 
 
 
+
+
     const personagem = lista.find(
-      (item: any) =>
-        item.nome.toLowerCase() === id.toLowerCase()
+
+      (item:any)=>
+
+        item.id === id
+
     );
 
 
 
-    if (personagem) {
 
-      setNomeOriginal(personagem.nome);
 
-      setName(personagem.nome);
+    if(personagem){
 
-      setOrigin(personagem.origem);
 
-      setClassName(personagem.classe);
+      setIdPersonagem(personagem.id);
 
-      setNex(personagem.nex);
 
-      setAttributes(
-        personagem.atributos
+      setName(
+        personagem.nome || ""
       );
 
+
+      setImage(
+        personagem.imagem || ""
+      );
+
+
+      setOrigin(
+        personagem.origem || ""
+      );
+
+
+      setClassName(
+        personagem.classe || ""
+      );
+
+
+      setNex(
+        personagem.nex || "5%"
+      );
+
+
+
+      setAttributes(
+
+        personagem.atributos || {
+
+          FOR:1,
+          AGI:1,
+          INT:1,
+          PRE:1,
+          VIG:1,
+
+        }
+
+      );
+
+
     }
+
+
+
 
 
     setCarregando(false);
 
 
-  }, [params.id]);
+
+  },[params.id]);
 
 
 
 
 
 
-  function salvarAlteracao() {
+
+  function handleImage(
+    e:React.ChangeEvent<HTMLInputElement>
+  ){
+
+
+    const arquivo = e.target.files?.[0];
+
+
+
+    if(!arquivo){
+
+      return;
+
+    }
+
+
+
+    const leitor = new FileReader();
+
+
+
+
+    leitor.onload = ()=>{
+
+
+      setImage(
+        String(leitor.result)
+      );
+
+
+    };
+
+
+
+    leitor.readAsDataURL(arquivo);
+
+
+  }
+  function salvarAlteracao(){
+
 
 
     const dados = localStorage.getItem(
@@ -102,43 +203,78 @@ export default function EditCharacter() {
     );
 
 
-    if (!dados) {
+
+    if(!dados){
+
       return;
+
     }
+
 
 
     const lista = JSON.parse(dados);
 
 
 
-    const { pv, pe, san } = calcularStatus(
+
+
+    const {pv,pe,san} = calcularStatus(
+
       className,
+
       attributes,
+
       nex
+
     );
 
 
 
+
+
+
+
     const novaLista = lista.map(
-      (personagem:any) => {
+
+      (personagem:any)=>{
 
 
-        if (
-          personagem.nome.toLowerCase() === nomeOriginal.toLowerCase()
-        ) {
+
+        if(personagem.id === idPersonagem){
+
 
 
           return {
 
+
+
             ...personagem,
 
-            nome: name,
 
-            origem: origin,
 
-            classe: className,
+            nome:name.trim(),
+
+
+
+            imagem:image,
+
+
+
+            origem:
+              origin || "Não definido",
+
+
+
+            classe:
+              className || "Não definido",
+
+
 
             nex,
+
+
+
+
 
             pv,
 
@@ -146,34 +282,86 @@ export default function EditCharacter() {
 
             san,
 
-            atributos: attributes,
+
+
+
+
+            // mantém valores atuais se já existirem
+
+            pvAtual:
+              personagem.pvAtual ?? pv,
+
+
+
+            peAtual:
+              personagem.peAtual ?? pe,
+
+
+
+            sanAtual:
+              personagem.sanAtual ?? san,
+
+
+
+
+
+
+            atributos:attributes,
+
+
 
           };
+
 
 
         }
 
 
+
+
+
         return personagem;
 
 
+
       }
+
     );
+
+
+
+
+
 
 
 
     localStorage.setItem(
+
       "personagens",
+
       JSON.stringify(novaLista)
+
     );
+
+
+
 
 
 
     router.push(
-      `/character/${name}`
+
+      `/character/${idPersonagem}`
+
     );
 
+
+
   }
+
+
+
+
+
 
 
 
@@ -182,42 +370,53 @@ export default function EditCharacter() {
 
 
   function alterarAtributo(
+
     atributo:string,
+
     valor:string
-  ) {
+
+  ){
+
 
 
     let numero = Number(valor);
 
 
-    if (numero < 0) {
+
+
+    if(numero < 0){
+
       numero = 0;
+
     }
 
 
-    if (numero > 5) {
+
+
+    if(numero > 5){
+
       numero = 5;
+
     }
+
+
+
+
 
 
     setAttributes({
 
       ...attributes,
 
-      [atributo]: numero,
+      [atributo]:numero,
 
     });
 
 
+
   }
+  if(carregando){
 
-
-
-
-
-
-
-  if (carregando) {
 
     return (
 
@@ -243,7 +442,9 @@ export default function EditCharacter() {
 
 
 
-  if (!nomeOriginal) {
+
+  if(!idPersonagem){
+
 
     return (
 
@@ -279,10 +480,15 @@ export default function EditCharacter() {
     flex
     items-center
     justify-center
+    p-5
     ">
 
 
+
       <div className="w-full max-w-2xl">
+
+
+
 
 
         <h1 className="
@@ -299,6 +505,9 @@ export default function EditCharacter() {
 
 
 
+
+
+
         <div className="
         mt-8
         bg-zinc-900
@@ -310,22 +519,118 @@ export default function EditCharacter() {
         ">
 
 
-          <input
 
-            value={name}
 
-            onChange={(e)=>
-              setName(e.target.value)
+
+          <div>
+
+            <label className="text-zinc-400">
+              Nome do personagem
+            </label>
+
+
+            <input
+
+              value={name}
+
+              onChange={(e)=>
+                setName(e.target.value)
+              }
+
+
+              className="
+              w-full
+              mt-2
+              bg-zinc-800
+              border
+              border-zinc-700
+              rounded-lg
+              p-3
+              "
+
+            />
+
+
+          </div>
+
+
+
+
+
+
+
+          <div>
+
+
+            <label className="text-zinc-400">
+              Imagem do personagem
+            </label>
+
+
+
+            <input
+
+              type="file"
+
+              accept="image/*"
+
+              onChange={handleImage}
+
+
+              className="
+              w-full
+              mt-2
+              bg-zinc-800
+              border
+              border-zinc-700
+              rounded-lg
+              p-3
+              "
+
+            />
+
+
+
+
+
+            {
+              image && (
+
+                <div className="
+                flex
+                justify-center
+                mt-4
+                ">
+
+
+                  <img
+
+                    src={image}
+
+                    alt={name}
+
+                    className="
+                    w-40
+                    h-40
+                    object-cover
+                    rounded-lg
+                    border
+                    border-zinc-700
+                    "
+
+                  />
+
+
+                </div>
+
+              )
             }
 
-            className="
-            w-full
-            bg-zinc-800
-            rounded-lg
-            p-3
-            "
 
-          />
+          </div>
+
+
+
 
 
 
@@ -339,30 +644,46 @@ export default function EditCharacter() {
               setOrigin(e.target.value)
             }
 
+
             className="
             w-full
             bg-zinc-800
+            border
+            border-zinc-700
             rounded-lg
             p-3
             "
 
           >
 
-            {origins.map((item)=>(
 
-              <option
-                key={item.name}
-                value={item.name}
-              >
+            <option value="">
+              Escolha uma origem
+            </option>
 
-                {item.name}
 
-              </option>
+            {
+              origins.map((item)=>(
 
-            ))}
+                <option
+
+                  key={item.name}
+
+                  value={item.name}
+
+                >
+
+                  {item.name}
+
+                </option>
+
+              ))
+            }
 
 
           </select>
+
+
 
 
 
@@ -377,30 +698,48 @@ export default function EditCharacter() {
               setClassName(e.target.value)
             }
 
+
             className="
             w-full
             bg-zinc-800
+            border
+            border-zinc-700
             rounded-lg
             p-3
             "
 
           >
 
-            {classes.map((item)=>(
 
-              <option
-                key={item.name}
-                value={item.name}
-              >
+            <option value="">
+              Escolha uma classe
+            </option>
 
-                {item.name}
 
-              </option>
+            {
+              classes.map((item)=>(
 
-            ))}
+                <option
+
+                  key={item.name}
+
+                  value={item.name}
+
+                >
+
+                  {item.name}
+
+                </option>
+
+              ))
+            }
 
 
           </select>
+
+
+
+
 
 
 
@@ -414,39 +753,39 @@ export default function EditCharacter() {
               setNex(e.target.value)
             }
 
+
             className="
             w-full
             bg-zinc-800
+            border
+            border-zinc-700
             rounded-lg
             p-3
             "
 
           >
 
-            {Array.from(
-              {length:19},
-              (_,i)=>{
 
-                const valor =
-                  (i + 1) * 5;
-
-
-                return (
+            {
+              Array.from(
+                {length:19},
+                (_,i)=>(
 
                   <option
-                    key={valor}
-                    value={`${valor}%`}
+
+                    key={i}
+
+                    value={`${(i+1)*5}%`}
+
                   >
 
-                    {valor}%
+                    {(i+1)*5}%
 
                   </option>
 
-                );
-
-              }
-
-            )}
+                )
+              )
+            }
 
 
 
@@ -456,6 +795,8 @@ export default function EditCharacter() {
 
 
           </select>
+
+
 
 
 
@@ -475,6 +816,9 @@ export default function EditCharacter() {
 
 
 
+
+
+
           <div className="
           grid
           grid-cols-5
@@ -482,46 +826,67 @@ export default function EditCharacter() {
           ">
 
 
-            {Object.keys(attributes).map(
-              (atributo)=>(
+
+            {
+              Object.keys(attributes).map(
+
+                (atributo)=>(
 
 
-              <input
-
-                key={atributo}
-
-                type="number"
-
-                min="0"
-
-                max="5"
-
-                value={
-                  attributes[
-                    atributo as keyof typeof attributes
-                  ]
-                }
+                  <input
 
 
-                onChange={(e)=>
-                  alterarAtributo(
-                    atributo,
-                    e.target.value
-                  )
-                }
+                    key={atributo}
 
 
-                className="
-                bg-zinc-800
-                rounded-lg
-                p-2
-                text-center
-                "
-
-              />
+                    type="number"
 
 
-            ))}
+                    min="0"
+
+
+                    max="5"
+
+
+
+                    value={
+                      attributes[
+                        atributo as keyof typeof attributes
+                      ]
+                    }
+
+
+
+
+                    onChange={(e)=>
+
+                      alterarAtributo(
+
+                        atributo,
+
+                        e.target.value
+
+                      )
+
+                    }
+
+
+
+                    className="
+                    bg-zinc-800
+                    rounded-lg
+                    p-2
+                    text-center
+                    "
+
+                  />
+
+
+                )
+
+              )
+            }
+
 
 
           </div>
@@ -531,9 +896,13 @@ export default function EditCharacter() {
 
 
 
+
+
+
           <button
 
             onClick={salvarAlteracao}
+
 
             className="
             w-full
@@ -553,13 +922,21 @@ export default function EditCharacter() {
 
 
 
+
+
+
         </div>
+
+
 
 
       </div>
 
 
+
+
     </main>
+
 
   );
 
