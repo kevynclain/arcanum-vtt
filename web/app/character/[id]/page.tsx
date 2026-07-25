@@ -6,24 +6,43 @@ import { useParams, useRouter } from "next/navigation";
 import { progressaoClasse } from "@/app/data/progressao";
 import { trilhas } from "@/app/data/trilhas";
 
+
 export default function CharacterPage() {
+
 
   const [personagem, setPersonagem] = useState<any>(null);
 
+
   const params = useParams();
+
   const router = useRouter();
+
+
+
+
 
   useEffect(() => {
 
+
     const id = String(params.id);
+
+
 
     const dados = localStorage.getItem(
       "personagens"
     );
 
+
+
     if(!dados) return;
 
+
+
+
     const personagens = JSON.parse(dados);
+
+
+
 
     const encontrado = personagens.find(
 
@@ -33,53 +52,132 @@ export default function CharacterPage() {
 
     );
 
+
+
+
     if(!encontrado) return;
 
-    const nexAtual = parseInt(encontrado.nex);
 
-    const progressao = progressaoClasse.find(
 
-      (item)=>
 
-        item.classe === encontrado.classe
+
+    const nexAtual = parseInt(
+
+      String(encontrado.nex)
+
+      .replace("%","")
 
     );
 
-    const trilhaAtual = trilhas.find(
 
-      (item)=>
+
+
+
+    const progressaoSelecionada = progressaoClasse.find(
+
+  (item:any)=>
+
+    item.classe === encontrado.classe
+
+);
+
+
+
+    const poderesClasse =
+
+      progressaoSelecionada?.poderes.filter(
+
+        (item:any)=>
+
+          parseInt(
+
+            item.nex.replace("%","")
+
+          )
+
+          <=
+
+          nexAtual
+
+      )
+
+      ||
+
+      [];
+
+
+
+
+
+
+
+
+    const trilhaSelecionada = trilhas.find(
+
+      (item:any)=>
 
         item.nome === encontrado.trilha
 
     );
 
-    const poderesClasse =
 
-      progressao?.poderes.filter(
 
-        (item)=>
 
-          parseInt(item.nex) <= nexAtual
 
-      ) || [];
+
+
+
 
     const poderesTrilha =
 
-      trilhaAtual?.poderes.filter(
+      trilhaSelecionada?.poderes?.filter(
 
-        (item)=>
+        (item:any)=>
 
-          parseInt(item.nex) <= nexAtual
+          parseInt(
 
-      ) || [];
+            item.nex.replace("%","")
+
+          )
+
+          <=
+
+          nexAtual
+
+      )
+
+      ||
+
+      [];
+
+
+
+
+
+
+
 
     const personagemAtualizado = {
 
+
+
       ...encontrado,
+
+
+
+
 
       poderesClasse,
 
+
+
+
+
       poderesTrilha,
+
+
+
+
 
       pvAtual:
 
@@ -87,11 +185,19 @@ export default function CharacterPage() {
 
         encontrado.pv,
 
+
+
+
+
       peAtual:
 
         encontrado.peAtual ??
 
         encontrado.pe,
+
+
+
+
 
       sanAtual:
 
@@ -99,9 +205,25 @@ export default function CharacterPage() {
 
         encontrado.san,
 
+
+
     };
 
-    setPersonagem(personagemAtualizado);
+
+
+
+
+
+    setPersonagem(
+
+      personagemAtualizado
+
+    );
+
+
+
+
+
 
     const listaAtualizada = personagens.map(
 
@@ -109,11 +231,20 @@ export default function CharacterPage() {
 
         item.id === id
 
-          ? personagemAtualizado
+        ?
 
-          : item
+        personagemAtualizado
+
+        :
+
+        item
 
     );
+
+
+
+
+
 
     localStorage.setItem(
 
@@ -123,7 +254,9 @@ export default function CharacterPage() {
 
     );
 
-  }, [params.id]);
+
+
+  },[params.id]);
     function alterarStatus(
 
     tipo:"pv"|"pe"|"san",
@@ -132,7 +265,13 @@ export default function CharacterPage() {
 
   ){
 
+
+
     if(!personagem) return;
+
+
+
+
 
     const novo = {
 
@@ -140,9 +279,19 @@ export default function CharacterPage() {
 
     };
 
-    if(tipo==="pv"){
+
+
+
+
+
+
+    if(tipo === "pv"){
+
+
 
       novo.pvAtual += valor;
+
+
 
       novo.pvAtual = Math.max(
 
@@ -158,11 +307,23 @@ export default function CharacterPage() {
 
       );
 
+
+
     }
 
-    if(tipo==="pe"){
+
+
+
+
+
+
+    if(tipo === "pe"){
+
+
 
       novo.peAtual += valor;
+
+
 
       novo.peAtual = Math.max(
 
@@ -178,11 +339,24 @@ export default function CharacterPage() {
 
       );
 
+
+
     }
 
-    if(tipo==="san"){
+
+
+
+
+
+
+
+    if(tipo === "san"){
+
+
 
       novo.sanAtual += valor;
+
+
 
       novo.sanAtual = Math.max(
 
@@ -198,7 +372,16 @@ export default function CharacterPage() {
 
       );
 
+
+
     }
+
+
+
+
+
+
+
 
     const dados = JSON.parse(
 
@@ -206,17 +389,38 @@ export default function CharacterPage() {
 
     );
 
+
+
+
+
+
+
     const lista = dados.map(
 
       (item:any)=>
 
+
+
         item.id === personagem.id
 
-          ? novo
+        ?
 
-          : item
+        novo
+
+        :
+
+        item
+
+
 
     );
+
+
+
+
+
+
+
 
     localStorage.setItem(
 
@@ -226,13 +430,33 @@ export default function CharacterPage() {
 
     );
 
+
+
+
+
+
+
+
     setPersonagem(novo);
+
+
 
   }
 
+
+
+
+
+
+
+
+
   if(!personagem){
 
+
+
     return(
+
 
       <main className="
       min-h-screen
@@ -243,19 +467,23 @@ export default function CharacterPage() {
       justify-center
       ">
 
+
         <p className="text-zinc-400">
 
           Nenhum personagem encontrado
 
         </p>
 
+
       </main>
+
 
     );
 
-  }
 
-  return(
+  }
+    return(
+
 
     <main className="
     min-h-screen
@@ -267,7 +495,12 @@ export default function CharacterPage() {
     p-5
     ">
 
+
       <div className="w-full max-w-xl">
+
+
+
+
 
         <h1 className="
         text-5xl
@@ -281,6 +514,12 @@ export default function CharacterPage() {
 
         </h1>
 
+
+
+
+
+
+
         <div className="
         mt-10
         bg-zinc-900
@@ -289,6 +528,12 @@ export default function CharacterPage() {
         rounded-lg
         p-6
         ">
+
+
+
+
+
+
 
           <h2 className="
           text-3xl
@@ -300,9 +545,16 @@ export default function CharacterPage() {
 
           </h2>
 
+
+
+
+
+
+
           {
 
             personagem.imagem && (
+
 
               <div className="
               flex
@@ -310,11 +562,15 @@ export default function CharacterPage() {
               mt-5
               ">
 
+
                 <img
+
 
                   src={personagem.imagem}
 
+
                   alt={personagem.nome}
+
 
                   className="
                   w-48
@@ -325,13 +581,24 @@ export default function CharacterPage() {
                   border-zinc-700
                   "
 
+
                 />
 
+
               </div>
+
 
             )
 
           }
+
+
+
+
+
+
+
+
 
           <div className="
           flex
@@ -339,13 +606,21 @@ export default function CharacterPage() {
           mt-5
           ">
 
+
+
+
+
             <button
+
 
               onClick={()=>
 
+
                 router.push("/character")
 
+
               }
+
 
               className="
               flex-1
@@ -356,15 +631,26 @@ export default function CharacterPage() {
               font-bold
               "
 
+
             >
+
 
               ← Voltar
 
+
             </button>
+
+
+
+
+
+
 
             <button
 
+
               onClick={()=>
+
 
                 router.push(
 
@@ -372,7 +658,10 @@ export default function CharacterPage() {
 
                 )
 
+
               }
+
+
 
               className="
               flex-1
@@ -383,13 +672,28 @@ export default function CharacterPage() {
               font-bold
               "
 
+
             >
+
 
               Editar
 
+
             </button>
 
+
+
+
+
           </div>
+
+
+
+
+
+
+
+
 
           <div className="
           mt-6
@@ -398,71 +702,121 @@ export default function CharacterPage() {
           gap-3
           ">
 
+
+
+
+
             <StatusBox
+
 
               nome="PV"
 
+
               atual={personagem.pvAtual}
+
 
               max={personagem.pv}
 
+
               onMinus={()=>
+
 
                 alterarStatus("pv",-1)
 
+
               }
 
+
               onPlus={()=>
+
 
                 alterarStatus("pv",1)
 
+
               }
+
 
             />
 
+
+
+
+
+
+
             <StatusBox
+
 
               nome="PE"
 
+
               atual={personagem.peAtual}
+
 
               max={personagem.pe}
 
+
               onMinus={()=>
+
 
                 alterarStatus("pe",-1)
 
+
               }
 
+
               onPlus={()=>
+
 
                 alterarStatus("pe",1)
 
+
               }
 
+
             />
+
+
+
+
+
+
 
             <StatusBox
 
+
               nome="SAN"
+
 
               atual={personagem.sanAtual}
 
+
               max={personagem.san}
+
 
               onMinus={()=>
 
+
                 alterarStatus("san",-1)
 
+
               }
+
 
               onPlus={()=>
 
+
                 alterarStatus("san",1)
+
 
               }
 
+
             />
+
+
+
+
 
           </div>
 		            <div className="
@@ -471,15 +825,20 @@ export default function CharacterPage() {
           text-zinc-300
           ">
 
+
             <p>
 
               <span className="text-zinc-500">
                 Origem:
               </span>{" "}
 
-              {personagem.origem}
+              {personagem.origem || "Não definido"}
 
             </p>
+
+
+
+
 
             <p>
 
@@ -487,9 +846,13 @@ export default function CharacterPage() {
                 Classe:
               </span>{" "}
 
-              {personagem.classe}
+              {personagem.classe || "Não definido"}
 
             </p>
+
+
+
+
 
             <p>
 
@@ -497,9 +860,13 @@ export default function CharacterPage() {
                 Trilha:
               </span>{" "}
 
-              {personagem.trilha || "Nenhuma"}
+              {personagem.trilha || "Sem trilha"}
 
             </p>
+
+
+
+
 
             <p>
 
@@ -511,7 +878,15 @@ export default function CharacterPage() {
 
             </p>
 
+
           </div>
+
+
+
+
+
+
+
 
           <h3 className="
           mt-8
@@ -524,6 +899,10 @@ export default function CharacterPage() {
 
           </h3>
 
+
+
+
+
           <div className="
           mt-4
           bg-zinc-800
@@ -531,6 +910,7 @@ export default function CharacterPage() {
           p-4
           space-y-3
           ">
+
 
             <p>
 
@@ -542,6 +922,10 @@ export default function CharacterPage() {
 
             </p>
 
+
+
+
+
             <p>
 
               <span className="text-zinc-500">
@@ -552,7 +936,16 @@ export default function CharacterPage() {
 
             </p>
 
+
           </div>
+
+
+
+
+
+
+
+
 
           <h3 className="
           mt-8
@@ -565,19 +958,34 @@ export default function CharacterPage() {
 
           </h3>
 
+
+
+
+
           <div className="
           mt-4
           bg-zinc-800
           rounded-lg
           p-4
           text-zinc-300
+          whitespace-pre-wrap
           ">
+
 
             {personagem.historia ||
 
             "Nenhuma história registrada"}
 
+
           </div>
+
+
+
+
+
+
+
+
 
           <h3 className="
           mt-8
@@ -590,19 +998,33 @@ export default function CharacterPage() {
 
           </h3>
 
+
+
+
+
           <div className="
           mt-4
           bg-zinc-800
           rounded-lg
           p-4
           text-zinc-300
+          whitespace-pre-wrap
           ">
+
 
             {personagem.aparencia ||
 
             "Nenhuma aparência registrada"}
 
+
           </div>
+
+
+
+
+
+
+
 
           <h3 className="
           mt-8
@@ -615,21 +1037,27 @@ export default function CharacterPage() {
 
           </h3>
 
+
+
+
+
           <div className="
           mt-4
           bg-zinc-800
           rounded-lg
           p-4
           text-zinc-300
+          whitespace-pre-wrap
           ">
+
 
             {personagem.anotacoes ||
 
             "Nenhuma anotação registrada"}
 
-          </div>
 
-          <h3 className="
+          </div>
+		            <h3 className="
           mt-8
           text-xl
           font-bold
@@ -640,6 +1068,10 @@ export default function CharacterPage() {
 
           </h3>
 
+
+
+
+
           <div className="
           mt-4
           bg-zinc-800
@@ -647,9 +1079,11 @@ export default function CharacterPage() {
           p-4
           ">
 
+
             {
 
               personagem.pericias?.length > 0 ?
+
 
               (
 
@@ -658,19 +1092,24 @@ export default function CharacterPage() {
                 text-zinc-300
                 ">
 
+
                   {
 
                     personagem.pericias.map(
 
                       (item:string,index:number)=>(
 
+
                         <li
+
                           key={`${item}-${index}`}
+
                         >
 
                           • {item}
 
                         </li>
+
 
                       )
 
@@ -678,11 +1117,15 @@ export default function CharacterPage() {
 
                   }
 
+
                 </ul>
+
 
               )
 
+
               :
+
 
               (
 
@@ -692,174 +1135,340 @@ export default function CharacterPage() {
 
                 </p>
 
+
+              )
+
+
+            }
+
+
+          </div>
+
+
+
+
+
+
+
+
+
+          <h3 className="
+          mt-8
+          text-xl
+          font-bold
+          text-red-500
+          ">
+
+            Poder de Origem
+
+          </h3>
+
+
+
+
+
+          <div className="
+          mt-4
+          bg-zinc-800
+          rounded-lg
+          p-4
+          ">
+
+
+            {personagem.poder || "Nenhum"}
+
+
+          </div>
+
+
+
+
+
+
+
+
+
+          <h3 className="
+          mt-8
+          text-xl
+          font-bold
+          text-red-500
+          ">
+
+            Habilidade de Classe
+
+          </h3>
+
+
+
+
+
+          <div className="
+          mt-4
+          bg-zinc-800
+          rounded-lg
+          p-4
+          ">
+
+
+
+            <p className="font-bold">
+
+              {personagem.habilidadeClasse || "Nenhuma"}
+
+            </p>
+
+
+
+
+            <p className="
+            text-zinc-400
+            mt-2
+            ">
+
+              {personagem.descricaoClasse || ""}
+
+            </p>
+
+
+          </div>
+
+
+
+
+
+
+
+
+
+          <h3 className="
+          mt-8
+          text-xl
+          font-bold
+          text-red-500
+          ">
+
+            Poderes Desbloqueados
+
+          </h3>
+
+
+
+
+
+
+          <div className="
+          mt-4
+          bg-zinc-800
+          rounded-lg
+          p-4
+          space-y-5
+          ">
+
+
+
+            {
+
+              personagem.poderesClasse?.length > 0 && (
+
+
+                <div>
+
+
+                  <h4 className="
+                  text-red-400
+                  font-bold
+                  ">
+
+                    Classe
+
+                  </h4>
+
+
+
+
+
+                  {
+
+                    personagem.poderesClasse.map(
+
+                      (poder:any,index:number)=>(
+
+
+                        <div
+
+                          key={index}
+
+                          className="
+                          mt-3
+                          border-b
+                          border-zinc-700
+                          pb-3
+                          "
+
+
+                        >
+
+
+                          <p className="font-bold">
+
+                            {poder.nome}
+
+                          </p>
+
+
+
+                          <p className="
+                          text-zinc-400
+                          text-sm
+                          ">
+
+                            NEX {poder.nex}
+
+                          </p>
+
+
+
+                          <p className="
+                          text-zinc-300
+                          mt-1
+                          ">
+
+                            {poder.descricao}
+
+                          </p>
+
+
+
+                        </div>
+
+
+                      )
+
+                    )
+
+
+                  }
+
+
+                </div>
+
+
               )
 
             }
 
+
+
+
+
+
+
+
+
+            {
+
+              personagem.poderesTrilha?.length > 0 && (
+
+
+                <div>
+
+
+                  <h4 className="
+                  text-red-400
+                  font-bold
+                  ">
+
+                    Trilha
+
+                  </h4>
+
+
+
+
+
+                  {
+
+                    personagem.poderesTrilha.map(
+
+                      (poder:any,index:number)=>(
+
+
+                        <div
+
+                          key={index}
+
+                          className="
+                          mt-3
+                          border-b
+                          border-zinc-700
+                          pb-3
+                          "
+
+
+                        >
+
+
+                          <p className="font-bold">
+
+                            {poder.nome}
+
+                          </p>
+
+
+
+                          <p className="
+                          text-zinc-400
+                          text-sm
+                          ">
+
+                            NEX {poder.nex}
+
+                          </p>
+
+
+
+                          <p className="
+                          text-zinc-300
+                          mt-1
+                          ">
+
+                            {poder.descricao}
+
+                          </p>
+
+
+
+                        </div>
+
+
+                      )
+
+                    )
+
+
+                  }
+
+
+                </div>
+
+
+              )
+
+            }
+
+
+
           </div>
-		  <h3 className="
-mt-8
-text-xl
-font-bold
-text-red-500
-">
 
-  Progressão da Classe
 
-</h3>
 
-<div className="
-mt-4
-space-y-3
-">
 
-  {
 
-    personagem.poderesClasse?.length > 0 ?
 
-    (
 
-      personagem.poderesClasse.map((p:any)=>(
 
-        <div
 
-          key={p.nex}
-
-          className="
-          bg-zinc-800
-          rounded-lg
-          p-4
-          border
-          border-zinc-700
-          "
-
-        >
-
-          <p className="text-red-500 font-bold">
-
-            {p.nex}
-
-          </p>
-
-          <p className="font-bold mt-2">
-
-            {p.nome}
-
-          </p>
-
-          <p className="text-zinc-400 mt-2">
-
-            {p.descricao}
-
-          </p>
-
-        </div>
-
-      ))
-
-    )
-
-    :
-
-    (
-
-      <div className="
-      bg-zinc-800
-      rounded-lg
-      p-4
-      ">
-
-        Nenhum poder desbloqueado.
-
-      </div>
-
-    )
-
-  }
-
-</div>
-
-<h3 className="
-mt-8
-text-xl
-font-bold
-text-red-500
-">
-
-  Progressão da Trilha
-
-</h3>
-
-<div className="
-mt-4
-space-y-3
-">
-
-  {
-
-    personagem.poderesTrilha?.length > 0 ?
-
-    (
-
-      personagem.poderesTrilha.map((p:any)=>(
-
-        <div
-
-          key={p.nex}
-
-          className="
-          bg-zinc-800
-          rounded-lg
-          p-4
-          border
-          border-zinc-700
-          "
-
-        >
-
-          <p className="text-red-500 font-bold">
-
-            {p.nex}
-
-          </p>
-
-          <p className="font-bold mt-2">
-
-            {p.nome}
-
-          </p>
-
-          <p className="text-zinc-400 mt-2">
-
-            {p.descricao}
-
-          </p>
-
-        </div>
-
-      ))
-
-    )
-
-    :
-
-    (
-
-      <div className="
-      bg-zinc-800
-      rounded-lg
-      p-4
-      ">
-
-        Nenhum poder de trilha desbloqueado.
-
-      </div>
-
-    )
-
-  }
-
-</div>
           <h3 className="
           mt-8
           text-xl
@@ -871,12 +1480,17 @@ space-y-3
 
           </h3>
 
+
+
+
+
           <div className="
           mt-4
           grid
           grid-cols-5
           gap-3
           ">
+
 
             {
 
@@ -887,6 +1501,7 @@ space-y-3
               ).map(
 
                 ([atributo,valor])=>(
+
 
                   <div
 
@@ -899,7 +1514,9 @@ space-y-3
                     text-center
                     "
 
+
                   >
+
 
                     <p className="
                     text-zinc-400
@@ -910,6 +1527,8 @@ space-y-3
 
                     </p>
 
+
+
                     <p className="
                     text-2xl
                     font-bold
@@ -919,7 +1538,10 @@ space-y-3
 
                     </p>
 
+
+
                   </div>
+
 
                 )
 
@@ -927,17 +1549,33 @@ space-y-3
 
             }
 
+
           </div>
+
+
+
+
+
 
         </div>
 
+
       </div>
+
 
     </main>
 
+
   );
 
+
 }
+
+
+
+
+
+
 
 function StatusBox({
 
@@ -951,9 +1589,12 @@ function StatusBox({
 
   onPlus
 
+
 }:any){
 
+
   return(
+
 
     <div className="
     bg-zinc-800
@@ -962,11 +1603,20 @@ function StatusBox({
     text-center
     ">
 
-      <p className="text-zinc-500 text-sm">
+
+
+      <p className="
+      text-zinc-500
+      text-sm
+      ">
 
         {nome}
 
       </p>
+
+
+
+
 
       <p className="
       text-xl
@@ -977,12 +1627,18 @@ function StatusBox({
 
       </p>
 
+
+
+
+
       <div className="
       flex
       justify-center
       gap-2
       mt-3
       ">
+
+
 
         <button
 
@@ -1000,6 +1656,10 @@ function StatusBox({
 
         </button>
 
+
+
+
+
         <button
 
           onClick={onPlus}
@@ -1016,10 +1676,16 @@ function StatusBox({
 
         </button>
 
+
+
       </div>
+
+
 
     </div>
 
+
   );
+
 
 }
